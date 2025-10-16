@@ -1,0 +1,68 @@
+@prefix OWL: <http://example.org/OWL#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs1: <http://example.org/rdfs#> .
+@prefix rico: <http://www.ica.org/standards/RiC/ontology#> .
+
+<http://example.org/Busta_URI> a rico:RecordSet ;
+    rico:Identifier "Literal" ;
+    rico:generalDescription "Literal" ;
+    rico:hasOrHadAppellation "Literal" ;
+    rico:identifier "Literal" ;
+    rico:isDirectlyIncludedIn rico:RecordSet .
+
+<http://example.org/Denominazione_Fascicolo> OWL:sameAs <http://example.org/VIAF_URI>,
+        <http://example.org/VIAF_extra> .
+
+<http://example.org/Documento_URI> rico:Identifier "Literal" ;
+    rico:generalDescription "Literal" ;
+    rico:hasOrHadAppellation "Literal" ;
+    rico:hasOrHadLocation rico:place ;
+    rico:hasSender <http://example.org/Persona_URI> ;
+    rico:normalizedDateValue "Integer" ;
+    rico:physicalOrLogicalExtent rdfs1:Literal .
+
+<http://example.org/Fascicolo_URI> a rico:RecordSet ;
+    rico:Identifier "Literal" ;
+    rico:hasBeginningDate "integer" ;
+    rico:hasEndDate "integer" ;
+    rico:hasOrHadAppellation "Literal" ;
+    rico:hasSender <http://example.org/Persona_URI> ;
+    rico:identifier "Literal" ;
+    rico:normalizedDateValue "Integer" ;
+    rico:physicalOrLogicalExtent "Literal" .
+
+<http://example.org/Immagini_URI> a rico:RecordResource ;
+    rico:Identifier "Literal" ;
+    rico:hasOrHadAppellation "Literal" .
+
+<http://example.org/Physical_Location_URI> a rico:Place .
+
+<http://example.org/Serie_URI> a rico:RecordSet ;
+    rico:Identifier "Literal" ;
+    rico:directlyIncludes rico:RecordSet ;
+    rico:generalDescription "Literal" ;
+    rico:hasBeginningDate <http://example.org/Beginning_date_URI> ;
+    rico:hasEndDate <http://example.org/End_date_URI> ;
+    rico:hasOrHadAppellation "Literal" ;
+    rico:identifier "Literal" ;
+    rico:physicalOrLogicalExtent "Literal" .
+
+<http://example.org/Sottoserie_URI> a rico:RecordSet ;
+    rico:Identifier "Literal" ;
+    rico:directlyIncludes rico:RecordSet ;
+    rico:generalDescription "Literal" ;
+    rico:hasBeginningDate <http://example.org/Beginning_date_URI> ;
+    rico:hasEndDate <http://example.org/End_date_URI> ;
+    rico:hasOrHadTitle "Literal" ;
+    rico:identifier "Literal" ;
+    rico:isDirectlyIncludedIn rico:RecordSet ;
+    rico:physicalOrLogicalExtent "Literal" .
+
+<http://example.org/Beginning_date_URI> a rico:Date ;
+    rdf:value "Literal" .
+
+<http://example.org/End_date_URI> a rico:Date ;
+    rdf:value "Literal" .
+
+<http://example.org/Persona_URI> a rico:Person .
+

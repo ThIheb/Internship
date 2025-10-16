@@ -1,0 +1,514 @@
+@prefix XSD: <http://example.org/XSD#> .
+@prefix rico: <http://example.org/rico#> .
+
+<http://example.org/1853-1934> a rico:Date ;
+    rico:hasBeginningDate "1853" ;
+    rico:hasEndDate "1934" .
+
+<http://example.org/1884-1932> a rico:Date ;
+    rico:hasBeginningDate "1884" ;
+    rico:hasEndDate "1932" .
+
+<http://example.org/1887-1933> a rico:Date ;
+    rico:hasBeginningDate "1887" ;
+    rico:hasEndDate "1933" .
+
+<http://example.org/1887-1937> a rico:Date ;
+    rico:hasBeginningDate "1887" ;
+    rico:hasEndDate "1937" .
+
+<http://example.org/S1> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 12, fascc. 1-36; busta 13, fasc. 3",
+        "Busta 12, fascc. 37-42",
+        "Busta 13, fascc. 5-11",
+        "Buste 1-11; busta 13, fascc. 1, 2, 4",
+        "Buste 1-13" ;
+    rico:generalDescription XSD:Literal,
+        "Corrispondenza di Giuseppe Albini e famigliari, organizzata in fascicoli per mittente." ;
+    rico:hasBeginningDate "1853",
+        "Beginning date URI" ;
+    rico:hasEndDate "1934",
+        "End date URI" ;
+    rico:hasOrHadAppellation XSD:Literal,
+        "Corrispondenza" ;
+    rico:identifier "S1" ;
+    rico:physicalOrLogicalExtent XSD:Literal,
+        "634 fascicoli" .
+
+<http://example.org/S1_SS1> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Buste 1-11; busta 13, fascc. 1, 2, 4" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Corrispondenza di Giuseppe Albini" ;
+    rico:identifier "S1_SS1" ;
+    rico:isDirectlyIncludedIn "S1" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S1_SS1_B1> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_1" ;
+    rico:identifier "S1_SS1_B1" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B10> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_10" ;
+    rico:identifier "S1_SS1_B10" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B11> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_11" ;
+    rico:identifier "S1_SS1_B11" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B2> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_2" ;
+    rico:identifier "S1_SS1_B2" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B3> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_3" ;
+    rico:identifier "S1_SS1_B3" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B4> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_4" ;
+    rico:identifier "S1_SS1_B4" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B5> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_5" ;
+    rico:identifier "S1_SS1_B5" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B6> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_6" ;
+    rico:identifier "S1_SS1_B6" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B7> a rico:RecordSet ;
+    rico:generalDescription "Il fascicolo intestato a Parolini E. segnalato nell’elenco di consistenza originale, non era presente nella busta. I fascicoli sono stati rinumerati di conseguenza." ;
+    rico:hasOrHadAppellation "Albini_7" ;
+    rico:identifier "S1_SS1_B7" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B8> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_8" ;
+    rico:identifier "S1_SS1_B8" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS1_B9> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_9" ;
+    rico:identifier "S1_SS1_B9" ;
+    rico:isDirectlyIncludedIn "S1_SS1" .
+
+<http://example.org/S1_SS2> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 12, fascc. 1-36; busta 13, fasc. 3" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Corrispondenza del padre di Giuseppe Albini" ;
+    rico:identifier "S1_SS2" ;
+    rico:isDirectlyIncludedIn "S1" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S1_SS2_B12> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_12" ;
+    rico:identifier "S1_SS2_B12" ;
+    rico:isDirectlyIncludedIn "S1_SS2" .
+
+<http://example.org/S1_SS3> a rico:RecordSet ;
+    rico:directlyIncludes "Busta 12, fascc. 37-42" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle "Corrispondenza della moglie di Giuseppe Albini" ;
+    rico:identifier "S1_SS3" ;
+    rico:isDirectlyIncludedIn "S1" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S1_SS3-4> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal ;
+    rico:identifier "S1_SS3-4" ;
+    rico:isDirectlyIncludedIn "S1" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S1_SS3_B13> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_13" ;
+    rico:identifier "S1_SS3_B13" ;
+    rico:isDirectlyIncludedIn "S1_SS3-4" .
+
+<http://example.org/S1_SS4> a rico:RecordSet ;
+    rico:directlyIncludes "Busta 13, fascc. 5-11" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle "Lettere di familiari" ;
+    rico:identifier "S1_SS4" ;
+    rico:isDirectlyIncludedIn "S1" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S2> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Buste 14-17",
+        "Buste 14-21",
+        "Buste 18-21" ;
+    rico:generalDescription XSD:Literal,
+        "Scritti diversi di letteratura italiana e documenti relativi ad altre attività (politica e amministrativa) esercitate da Giuseppe Albini." ;
+    rico:hasBeginningDate "1884",
+        "Beginning date URI" ;
+    rico:hasEndDate "1932",
+        "End date URI" ;
+    rico:hasOrHadAppellation XSD:Literal,
+        "Scritti di letteratura italiana" ;
+    rico:identifier "S2" ;
+    rico:physicalOrLogicalExtent XSD:Literal,
+        "102 fascicoli" .
+
+<http://example.org/S2_SS1> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Buste 14-17" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Scritti critici. Soggetti" ;
+    rico:identifier "S2_SS1" ;
+    rico:isDirectlyIncludedIn "S2" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S2_SS1_B14> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_14" ;
+    rico:identifier "S2_SS1_B14" ;
+    rico:isDirectlyIncludedIn "S2_SS1" .
+
+<http://example.org/S2_SS1_B15> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_15" ;
+    rico:identifier "S2_SS1_B15" ;
+    rico:isDirectlyIncludedIn "S2_SS1" .
+
+<http://example.org/S2_SS1_B16> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_16" ;
+    rico:identifier "S2_SS1_B16" ;
+    rico:isDirectlyIncludedIn "S2_SS1" .
+
+<http://example.org/S2_SS1_B17> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_17" ;
+    rico:identifier "S2_SS1_B17" ;
+    rico:isDirectlyIncludedIn "S2_SS1" .
+
+<http://example.org/S2_SS2> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Buste 18-21" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Scritti vari" ;
+    rico:identifier "S2_SS2" ;
+    rico:isDirectlyIncludedIn "S2" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S2_SS2_B18> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_18" ;
+    rico:identifier "S2_SS2_B18" ;
+    rico:isDirectlyIncludedIn "S2_SS2" .
+
+<http://example.org/S2_SS2_B19> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_19" ;
+    rico:identifier "S2_SS2_B19" ;
+    rico:isDirectlyIncludedIn "S2_SS2" .
+
+<http://example.org/S2_SS2_B20> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_20" ;
+    rico:identifier "S2_SS2_B20" ;
+    rico:isDirectlyIncludedIn "S2_SS2" .
+
+<http://example.org/S2_SS2_B21> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_21" ;
+    rico:identifier "S2_SS2_B21" ;
+    rico:isDirectlyIncludedIn "S2_SS2" .
+
+<http://example.org/S3> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 22",
+        "Buste 22-29",
+        "Buste 23-29" ;
+    rico:generalDescription XSD:Literal,
+        "Contributi, articoli, materiali di Giuseppe Albini o da lui raccolti relativi alla sua attività di oratore e docente" ;
+    rico:hasBeginningDate "1887",
+        "Beginning date URI" ;
+    rico:hasEndDate "1937",
+        "End date URI" ;
+    rico:hasOrHadAppellation XSD:Literal,
+        "Varie" ;
+    rico:identifier "S3" ;
+    rico:physicalOrLogicalExtent XSD:Literal,
+        "401 fascicoli" .
+
+<http://example.org/S3_SS1> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 22" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Manoscritti. Miscellanea numerata" ;
+    rico:identifier "S3_SS1" ;
+    rico:isDirectlyIncludedIn "S3" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S3_SS1_B22> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_22" ;
+    rico:identifier "S3_SS1_B22" ;
+    rico:isDirectlyIncludedIn "S3_SS1" .
+
+<http://example.org/S3_SS2> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 22" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Manoscritti di altri" ;
+    rico:identifier "S3_SS2" ;
+    rico:isDirectlyIncludedIn "S3" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S3_SS2_B22> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_22" ;
+    rico:identifier "S3_SS2_B22" ;
+    rico:isDirectlyIncludedIn "S3_SS2" .
+
+<http://example.org/S3_SS3> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Buste 23-29" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Stampe" ;
+    rico:identifier "S3_SS3" ;
+    rico:isDirectlyIncludedIn "S3" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S3_SS3_B23> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_23" ;
+    rico:identifier "S3_SS3_B23" ;
+    rico:isDirectlyIncludedIn "S3_SS3" .
+
+<http://example.org/S3_SS3_B24> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_24" ;
+    rico:identifier "S3_SS3_B24" ;
+    rico:isDirectlyIncludedIn "S3_SS3" .
+
+<http://example.org/S3_SS3_B25> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_25" ;
+    rico:identifier "S3_SS3_B25" ;
+    rico:isDirectlyIncludedIn "S3_SS3" .
+
+<http://example.org/S3_SS3_B26> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_26" ;
+    rico:identifier "S3_SS3_B26" ;
+    rico:isDirectlyIncludedIn "S3_SS3" .
+
+<http://example.org/S3_SS3_B27> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_27" ;
+    rico:identifier "S3_SS3_B27" ;
+    rico:isDirectlyIncludedIn "S3_SS3" .
+
+<http://example.org/S3_SS3_B28> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_28" ;
+    rico:identifier "S3_SS3_B28" ;
+    rico:isDirectlyIncludedIn "S3_SS3" .
+
+<http://example.org/S3_SS3_B29> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_29" ;
+    rico:identifier "S3_SS3_B29" ;
+    rico:isDirectlyIncludedIn "S3_SS3" .
+
+<http://example.org/S4> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 30",
+        "Busta 31",
+        "Busta 32",
+        "Busta 33",
+        "Busta 34",
+        "Busta 35",
+        "Busta 36 + 37",
+        "Buste 30-36 + busta 37 (non presente nel primo elenco)" ;
+    rico:generalDescription XSD:Literal,
+        "Scritti diversi, bozze, appunti di letteratura latina e greca raccolti da Giuseppe Albini in qualità di studente, docente, recensore e oratore." ;
+    rico:hasBeginningDate "1887",
+        "Beginning date URI" ;
+    rico:hasEndDate "1933",
+        "End date URI" ;
+    rico:hasOrHadAppellation XSD:Literal,
+        "Scritti di letteratura latina e greca" ;
+    rico:identifier "S4" ;
+    rico:physicalOrLogicalExtent XSD:Literal,
+        "74 fascicoli" .
+
+<http://example.org/S4_SS1> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 30" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Soggetti vari" ;
+    rico:identifier "S4_SS1" ;
+    rico:isDirectlyIncludedIn "S4" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S4_SS1_B30> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_30" ;
+    rico:identifier "S4_SS1_B30" ;
+    rico:isDirectlyIncludedIn "S4_SS1" .
+
+<http://example.org/S4_SS2> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 31" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Scritti vari su Virgilio" ;
+    rico:identifier "S4_SS2" ;
+    rico:isDirectlyIncludedIn "S4" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S4_SS2_B31> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_31" ;
+    rico:identifier "S4_SS2_B31" ;
+    rico:isDirectlyIncludedIn "S4_SS2" .
+
+<http://example.org/S4_SS3> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 32" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Scritti vari sulle opere di Virgilio" ;
+    rico:identifier "S4_SS3" ;
+    rico:isDirectlyIncludedIn "S4" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S4_SS3_B32> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_32" ;
+    rico:identifier "S4_SS3_B32" ;
+    rico:isDirectlyIncludedIn "S4_SS3" .
+
+<http://example.org/S4_SS4> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 33" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Carmi latini di Giuseppe Albini" ;
+    rico:identifier "S4_SS4" ;
+    rico:isDirectlyIncludedIn "S4" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S4_SS4_B33> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_33" ;
+    rico:identifier "S4_SS4_B33" ;
+    rico:isDirectlyIncludedIn "S4_SS4" .
+
+<http://example.org/S4_SS5> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 34" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Articoli manoscritti vari" ;
+    rico:identifier "S4_SS5" ;
+    rico:isDirectlyIncludedIn "S4" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S4_SS5_B34> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_34" ;
+    rico:identifier "S4_SS5_B34" ;
+    rico:isDirectlyIncludedIn "S4_SS5" .
+
+<http://example.org/S4_SS6> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 35" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Scritti vari di letteratura latina" ;
+    rico:identifier "S4_SS6" ;
+    rico:isDirectlyIncludedIn "S4" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S4_SS6_B35> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_35" ;
+    rico:identifier "S4_SS6_B35" ;
+    rico:isDirectlyIncludedIn "S4_SS6" .
+
+<http://example.org/S4_SS7> a rico:RecordSet ;
+    rico:directlyIncludes rico:RecordSet,
+        "Busta 36 + 37" ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI" ;
+    rico:hasEndDate "End date URI" ;
+    rico:hasOrHadTitle XSD:Literal,
+        "Miscellanea latina e greca" ;
+    rico:identifier "S4_SS7" ;
+    rico:isDirectlyIncludedIn "S4" ;
+    rico:physicalOrLogicalExtent XSD:Literal .
+
+<http://example.org/S4_SS7_B36> a rico:RecordSet ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation "Albini_36" ;
+    rico:identifier "S4_SS7_B36" ;
+    rico:isDirectlyIncludedIn "S4_SS7" .
+
