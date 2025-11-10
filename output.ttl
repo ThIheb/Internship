@@ -1,68 +1,81 @@
 @prefix OWL: <http://example.org/OWL#> .
+@prefix XSD: <http://example.org/XSD#> .
+@prefix ex: <http://example.org/> .
+@prefix place: <http://example.org/place/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs1: <http://example.org/rdfs#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rico: <http://www.ica.org/standards/RiC/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://example.org/Busta_URI> a rico:RecordSet ;
-    rico:Identifier "Literal" ;
-    rico:generalDescription "Literal" ;
-    rico:hasOrHadAppellation "Literal" ;
-    rico:identifier "Literal" ;
-    rico:isDirectlyIncludedIn rico:RecordSet .
+ex:Beginning_date_URI a rico:Date ;
+    rdf:value xsd:Literal .
 
-<http://example.org/Denominazione_Fascicolo> OWL:sameAs <http://example.org/VIAF_URI>,
-        <http://example.org/VIAF_extra> .
+ex:Busta_URI a rico:RecordSet ;
+    rico:Identifier XSD:Literal ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasOrHadAppellation XSD:Literal ;
+    rico:identifier XSD:Literal ;
+    rico:isDirectlyIncludedIn ex:ricoRecordSet .
 
-<http://example.org/Documento_URI> rico:Identifier "Literal" ;
-    rico:generalDescription "Literal" ;
-    rico:hasOrHadAppellation "Literal" ;
-    rico:hasOrHadLocation rico:place ;
-    rico:hasSender <http://example.org/Persona_URI> ;
-    rico:normalizedDateValue "Integer" ;
-    rico:physicalOrLogicalExtent rdfs1:Literal .
+ex:Denominazione_Fascicolo OWL:sameAs "VIAF URI"^^xsd:string .
 
-<http://example.org/Fascicolo_URI> a rico:RecordSet ;
-    rico:Identifier "Literal" ;
-    rico:hasBeginningDate "integer" ;
-    rico:hasEndDate "integer" ;
-    rico:hasOrHadAppellation "Literal" ;
-    rico:hasSender <http://example.org/Persona_URI> ;
-    rico:identifier "Literal" ;
-    rico:normalizedDateValue "Integer" ;
-    rico:physicalOrLogicalExtent "Literal" .
+ex:Documento_URI rico:Identifier XSD:Literal ;
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate XSD:Integer ;
+    rico:hasEndDate XSD:Integer ;
+    rico:hasOrHadAppellation XSD:Literal ;
+    rico:hasOrHadLocation place:ricoplace ;
+    rico:hasSender <http://example.org/entity/Persona_URI> ;
+    rico:normalizedDateValue XSD:Integer ;
+    rico:physicalOrLogicalExtent rdfs:Literal .
 
-<http://example.org/Immagini_URI> a rico:RecordResource ;
-    rico:Identifier "Literal" ;
-    rico:hasOrHadAppellation "Literal" .
+ex:End_date_URI a rico:Date ;
+    rdf:value XSD:Literal .
 
-<http://example.org/Physical_Location_URI> a rico:Place .
+ex:Fascicolo_URI a rico:RecordSet ;
+    rico:Identifier XSD:Literal ;
+    rico:hasBeginningDate XSD:integer ;
+    rico:hasEndDate XSD:integer ;
+    rico:hasOrHadAppellation XSD:Literal ;
+    rico:hasSender <http://example.org/entity/Persona_URI> ;
+    rico:identifier XSD:Literal ;
+    rico:normalizedDateValue XSD:Integer ;
+    rico:physicalOrLogicalExtent XSD:Literal .
 
-<http://example.org/Serie_URI> a rico:RecordSet ;
-    rico:Identifier "Literal" ;
+ex:Immagini_URI a rico:RecordResource ;
+    rico:Identifier XSD:Literal ;
+    rico:hasOrHadAppellation XSD:Literal .
+
+ex:Persona_URI a rico:Person .
+
+ex:Physical_Location_URI a rico:Place .
+
+ex:Serie_URI a rico:RecordSet ;
+    rico:Identifier XSD:Literal ;
     rico:directlyIncludes rico:RecordSet ;
-    rico:generalDescription "Literal" ;
-    rico:hasBeginningDate <http://example.org/Beginning_date_URI> ;
-    rico:hasEndDate <http://example.org/End_date_URI> ;
-    rico:hasOrHadAppellation "Literal" ;
-    rico:identifier "Literal" ;
-    rico:physicalOrLogicalExtent "Literal" .
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI"^^xsd:string ;
+    rico:hasEndDate "End date URI"^^xsd:string ;
+    rico:hasOrHadAppellation XSD:Literal ;
+    rico:identifier XSD:Literal ;
+    rico:physicalOrLogicalExtent XSD:Literal .
 
-<http://example.org/Sottoserie_URI> a rico:RecordSet ;
-    rico:Identifier "Literal" ;
+ex:Sottoserie_URI a rico:RecordSet ;
+    rico:Identifier XSD:Literal ;
     rico:directlyIncludes rico:RecordSet ;
-    rico:generalDescription "Literal" ;
-    rico:hasBeginningDate <http://example.org/Beginning_date_URI> ;
-    rico:hasEndDate <http://example.org/End_date_URI> ;
-    rico:hasOrHadTitle "Literal" ;
-    rico:identifier "Literal" ;
-    rico:isDirectlyIncludedIn rico:RecordSet ;
-    rico:physicalOrLogicalExtent "Literal" .
+    rico:generalDescription XSD:Literal ;
+    rico:hasBeginningDate "Beginning date URI"^^xsd:string ;
+    rico:hasEndDate "End date URI"^^xsd:string ;
+    rico:hasOrHadTitle XSD:Literal ;
+    rico:identifier XSD:Literal ;
+    rico:isDirectlyIncludedIn ex:ricoRecordSet ;
+    rico:physicalOrLogicalExtent XSD:Literal .
 
-<http://example.org/Beginning_date_URI> a rico:Date ;
-    rdf:value "Literal" .
+ex:mittenti_extra OWL:sameAs "VIAF extra"^^xsd:string .
 
-<http://example.org/End_date_URI> a rico:Date ;
-    rdf:value "Literal" .
+place:ricoplace a rico:Place ;
+    rdfs:label "rico:place" .
 
-<http://example.org/Persona_URI> a rico:Person .
+<http://example.org/entity/Persona_URI> a rico:Agent ;
+    rdfs:label "Persona URI" .
 
