@@ -15,7 +15,7 @@ except ImportError:
     print("--- WARNING: geonamescache not installed. ---")
     gc = None
 
-
+# <<< CHANGE 1: ADD YOUR GEONAMES USERNAME HERE >>>
 GEONAMES_USERNAME = "th_iheb" 
 
 # Utility Functions
@@ -129,6 +129,23 @@ g.bind("place", prefixes["place"])
 prefixes["date"] = Namespace(f"{BASE_NS}date/")
 g.bind("date", prefixes["date"]) 
 
+
+# Namespace for Identifier instances
+prefixes["identifier"] = Namespace(f"{BASE_NS}identifier/")
+g.bind("identifier", prefixes["identifier"]) 
+ns_ident = prefixes["identifier"]
+
+# Namespace for Title instances
+prefixes["title"] = Namespace(f"{BASE_NS}title/")
+g.bind("title", prefixes["title"]) 
+ns_title = prefixes["title"]
+
+# Namespace for Appellation instances
+prefixes["appellation"] = Namespace(f"{BASE_NS}appellation/")
+g.bind("appellation", prefixes["appellation"]) 
+ns_appell = prefixes["appellation"]
+
+
 NS_GN = Namespace("http://www.geonames.org/ontology#")
 g.bind("gn", NS_GN)
 
@@ -136,14 +153,6 @@ WGS84 = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
 g.bind("wgs84", WGS84)
 
 RICO_PLACE_URI = ns_rico["Place"]
-RICO_HAS_IDENTIFIER_URI = ns_rico["hasOrHadIdentifier"]
-RICO_IDENTIFIER_CLASS = ns_rico["Identifier"]
-
-
-# Namespace for Identifier instances
-prefixes["identifier"] = Namespace(f"{BASE_NS}identifier/")
-g.bind("identifier", prefixes["identifier"]) 
-ns_ident = prefixes["identifier"]
 
 
 def get_namespace(term):
@@ -304,6 +313,45 @@ for mapping_sheet in mapping_excel.sheet_names:
             if ":" in val_str and not val_str.startswith("http"):
                 get_namespace(val_str)
 
+    
+    RICO_LOCATION_URI = ns_rico["isAssociatedWithPlace"]
+    RICO_ASSOC_PLACE_URI = ns_rico["isAssociatedWithPlace"]
+    
+    RICO_HAS_TITLE_URI = ns_rico["hasOrHadTitle"]
+    RICO_TITLE_CLASS = ns_rico["Title"]
+    
+    RICO_HAS_APPELLATION_URI = ns_rico["hasOrHadAppellation"]
+    RICO_APPELLATION_CLASS = ns_rico["Appellation"]
+    
+    RICO_HAS_IDENTIFIER_URI = ns_rico["hasOrHadIdentifier"]
+    RICO_IDENTIFIER_CLASS = ns_rico["Identifier"]
+    
+    RICO_DATE_PREDICATE = ns_rico["dateOrDateRange"]
+    RICO_DATE_DATATYPE = ns_rico["Date"]
+    RICO_HAS_BEGIN_DATE = ns_rico["hasBeginningDate"]
+    RICO_HAS_END_DATE = ns_rico["hasEndDate"]
+    RICO_HAS_CREATION_DATE = ns_rico["hasCreationDate"]
+    RICO_EXPRESSED_DATE = ns_rico["expressedDate"]
+    RICO_NORMALIZED_DATE = ns_rico["normalizedDateValue"]
+    
+    LITERAL_TO_ENTITY_PREDICATES = {
+        ns_rico["isAssociatedWithPlace"],
+        RICO_ASSOC_PLACE_URI, 
+        ns_rico["hasSender"], 
+        ns_rico["isAssociatedWith"], 
+        RICO_HAS_BEGIN_DATE,
+        RICO_HAS_END_DATE,
+        RICO_HAS_CREATION_DATE,
+    }
+
+    # Predicates that must convert a literal object to an existing structural URI
+    STRUCTURAL_URI_PREDICATES = {
+        ns_rico["isDirectlyIncludedIn"],
+        ns_rico["isIncludedIn"]
+    }
+    
+
+
     # Process each mapping row
     for _, row in mapping_df.iterrows():
         subj_col = str(row["Column Subject"]).strip() if pd.notna(row["Column Subject"]) else None
@@ -314,42 +362,9 @@ for mapping_sheet in mapping_excel.sheet_names:
         if not subj_col or not predicate_str:
             continue
 
-
         ns_pred = get_namespace(predicate_str)
         pred = ns_pred[predicate_str.split(":", 1)[1]] if ns_pred else URIRef(predicate_str) 
         
-        
-        RICO_LOCATION_URI = ns_rico["isAssociatedWithPlace"]
-        RICO_ASSOC_PLACE_URI = ns_rico["isAssociatedWithPlace"]
-        RICO_HAS_TITLE_URI = ns_rico["hasOrHadTitle"]
-        RICO_TITLE_DATATYPE = ns_rico["Title"]
-        
-        RICO_DATE_PREDICATE = ns_rico["dateOrDateRange"]
-        RICO_DATE_DATATYPE = ns_rico["Date"]
-        RICO_HAS_BEGIN_DATE = ns_rico["hasBeginningDate"]
-        RICO_HAS_END_DATE = ns_rico["hasEndDate"]
-        RICO_HAS_CREATION_DATE = ns_rico["hasCreationDate"]
-        RICO_EXPRESSED_DATE = ns_rico["expressedDate"]
-        RICO_NORMALIZED_DATE = ns_rico["normalizedDateValue"]
-        
-        
-        LITERAL_TO_ENTITY_PREDICATES = {
-            ns_rico["isAssociatedWithPlace"],
-            RICO_ASSOC_PLACE_URI, 
-            ns_rico["hasSender"], 
-            ns_rico["isAssociatedWith"], 
-            RICO_HAS_BEGIN_DATE,
-            RICO_HAS_END_DATE,
-            RICO_HAS_CREATION_DATE,
-        }
-
-        # Predicates that must convert a literal object to an existing structural URI
-        STRUCTURAL_URI_PREDICATES = {
-            ns_rico["isDirectlyIncludedIn"],
-            ns_rico["isIncludedIn"]
-        }
-
-
         for _, inst_row in instance_df.iterrows():
             # Use lowercase for column lookup
             subj_val = inst_row.get(subj_col.lower()) if subj_col else None
@@ -410,7 +425,7 @@ for mapping_sheet in mapping_excel.sheet_names:
                     else:
                         if final_pred in {RICO_HAS_BEGIN_DATE, RICO_HAS_END_DATE, RICO_HAS_CREATION_DATE}:
                             continue 
-                        print(f"  ⚠️ WARNING: Could not parse date '{obj_val_str}' for predicate {final_pred}. Using full string for URI.")
+                        print(f"   ⚠️ WARNING: Could not parse date '{obj_val_str}' for predicate {final_pred}. Using full string for URI.")
                         
                 else: 
                     # Default for agents (sender/associated)
@@ -435,7 +450,7 @@ for mapping_sheet in mapping_excel.sheet_names:
                             # Add shortcut TO THE RECORD
                             g.add((subj_uri, RICO_NORMALIZED_DATE, norm_literal))
                         else:
-                            print(f"  ⚠️ WARNING: Could not normalize date label '{entity_label}' for entity {entity_uri}.")
+                            print(f"   ⚠️ WARNING: Could not normalize date label '{entity_label}' for entity {entity_uri}.")
                         
                         # Add expressed date TO THE DATE ENTITY
                         if mapping_sheet_lower == "documento":
@@ -454,44 +469,68 @@ for mapping_sheet in mapping_excel.sheet_names:
                         fetch_and_add_geonames_features(g, entity_uri, geonames_id, place_label)
 
                 
-                # ADD SHORTCUTS TO RECORD EVERY TIME
+                
                 if entity_type_uri == ns_rico["Place"]:
                     # Query the place entity for its enrichment data
                     fclass_lit = g.value(entity_uri, NS_GN.featureClass)
                     fcode_lit = g.value(entity_uri, NS_GN.featureCode)
                     
-                    # Add them as shortcuts to the record
-                    if fclass_lit: g.add((subj_uri, NS_GN.featureClass, fclass_lit))
-                    if fcode_lit: g.add((subj_uri, NS_GN.featureCode, fcode_lit))
-                
+                                    
                 # Set the final object term to the newly created URI
                 final_obj_term = entity_uri
             
+            
+
             # Custom Logic: Structural URIs
             elif final_pred in STRUCTURAL_URI_PREDICATES:
                 final_obj_term = URIRef(f"{BASE_NS}{make_safe_uri_label(obj_val_str)}")
-                
-                # Custom Logic: rico:hasOrHadIdentifier
+                 
+            # Custom Logic: rico:hasOrHadIdentifier
             elif final_pred == RICO_HAS_IDENTIFIER_URI:
-            
-            # shared URI for this identifier
+                #  Create a safe, shared URI for this identifier
                 safe_id_label = make_safe_uri_label(obj_val_str)
                 id_uri = ns_ident[safe_id_label] 
-            
-            # Define the new Identifier entity
+                
+                #  Define the new Identifier entity 
                 if (id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
                     g.add((id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
-                    # Add the literal value 
-                    
-                    g.add((id_uri, RDFS.label, Literal(f"Identifier: {obj_val_str}")))
-            
-            # Set the final object to be the URI of this new entity
+                    # Use rdfs:label for the value itself
+                    g.add((id_uri, RDFS.label, Literal(obj_val_str))) 
+                
+                #  Set the final object to be the URI of this new entity
                 final_obj_term = id_uri
-        
+
+            # Custom Logic: rico:hasOrHadAppellation
+            elif final_pred == RICO_HAS_APPELLATION_URI:
+                #  Create a safe, shared URI for this appellation
+                safe_appell_label = make_safe_uri_label(obj_val_str)
+                appell_uri = ns_appell[safe_appell_label] 
+                
+                #  Define the new Appellation entity
+                if (appell_uri, RDF.type, RICO_APPELLATION_CLASS) not in g:
+                    g.add((appell_uri, RDF.type, RICO_APPELLATION_CLASS))
+                    # Use rdfs:label for the value itself
+                    g.add((appell_uri, RDFS.label, Literal(obj_val_str)))
+                
+                #  Set the final object to be the URI of this new entity
+                final_obj_term = appell_uri
                 
             # Custom Logic: rico:hasOrHadTitle
             elif final_pred == RICO_HAS_TITLE_URI:
-                final_obj_term = Literal(obj_val_str, datatype=RICO_TITLE_DATATYPE)
+                #  Create a safe, shared URI for this title
+                safe_title_label = make_safe_uri_label(obj_val_str)
+                title_uri = ns_title[safe_title_label] 
+                
+                #  Define the new Title entity 
+                if (title_uri, RDF.type, RICO_TITLE_CLASS) not in g:
+                    g.add((title_uri, RDF.type, RICO_TITLE_CLASS))
+                    # Use rdfs:label for the value itself
+                    g.add((title_uri, RDFS.label, Literal(obj_val_str)))
+                
+                #  Set the final object to be the URI of this new entity
+                final_obj_term = title_uri
+            
+            
 
             # Custom Logic: (SKIPS)
             elif final_pred == RICO_DATE_PREDICATE or \
