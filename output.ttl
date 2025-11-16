@@ -1,81 +1,78 @@
 @prefix OWL: <http://example.org/OWL#> .
 @prefix XSD: <http://example.org/XSD#> .
-@prefix ex: <http://example.org/> .
-@prefix place: <http://example.org/place/> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix rico: <http://www.ica.org/standards/RiC/ontology#> .
+@prefix rico: <http://example.org/rico#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ex:Beginning_date_URI a rico:Date ;
-    rdf:value xsd:Literal .
+<http://example.org/denominazione_fascicolo_VALUE> a rico:Person ;
+    rdfs:label "instance based on 'denominazione fascicolo'" ;
+    OWL:sameAs "VIAF URI"^^xsd:string .
 
-ex:Busta_URI a rico:RecordSet ;
-    rico:Identifier XSD:Literal ;
+<http://example.org/denominazione_sottoserie_VALUE> a rico:Title ;
+    rdfs:label "instance based on 'denominazione sottoserie'" .
+
+<http://example.org/id_busta_VALUE> a rico:RecordSet ;
+    rdfs:label "instance based on 'id_busta'" ;
     rico:generalDescription XSD:Literal ;
     rico:hasOrHadAppellation XSD:Literal ;
+    rico:hasOrHadIdentifier rico:Identifier ;
     rico:identifier XSD:Literal ;
-    rico:isDirectlyIncludedIn ex:ricoRecordSet .
+    rico:isDirectlyIncludedIn rico:RecordSet .
 
-ex:Denominazione_Fascicolo OWL:sameAs "VIAF URI"^^xsd:string .
-
-ex:Documento_URI rico:Identifier XSD:Literal ;
+<http://example.org/id_documento_VALUE> a rico:Record ;
+    rdfs:label "instance based on 'id_documento'" ;
+    rico:dateOrDateRange rico:date ;
     rico:generalDescription XSD:Literal ;
-    rico:hasBeginningDate XSD:Integer ;
-    rico:hasEndDate XSD:Integer ;
+    rico:hasBeginningDate rico:date ;
+    rico:hasCreationDate rico:date ;
+    rico:hasEndDate rico:date ;
     rico:hasOrHadAppellation XSD:Literal ;
-    rico:hasOrHadLocation place:ricoplace ;
-    rico:hasSender <http://example.org/entity/Persona_URI> ;
-    rico:normalizedDateValue XSD:Integer ;
+    rico:hasOrHadIdentifier rico:Identifier ;
+    rico:hasSender "Persona URI"^^xsd:string ;
+    rico:isAssociatedWithPlace rico:place ;
     rico:physicalOrLogicalExtent rdfs:Literal .
 
-ex:End_date_URI a rico:Date ;
-    rdf:value XSD:Literal .
-
-ex:Fascicolo_URI a rico:RecordSet ;
-    rico:Identifier XSD:Literal ;
-    rico:hasBeginningDate XSD:integer ;
-    rico:hasEndDate XSD:integer ;
+<http://example.org/id_fascicolo_VALUE> a rico:RecordSet ;
+    rdfs:label "instance based on 'id_fascicolo'" ;
+    rico:dateOrDateRange rico:date ;
+    rico:hasBeginningDate rico:date ;
+    rico:hasCreationDate rico:date ;
+    rico:hasEndDate rico:date ;
     rico:hasOrHadAppellation XSD:Literal ;
-    rico:hasSender <http://example.org/entity/Persona_URI> ;
-    rico:identifier XSD:Literal ;
-    rico:normalizedDateValue XSD:Integer ;
+    rico:hasOrHadIdentifier rico:Identifier ;
+    rico:hasSender "Persona URI"^^xsd:string ;
     rico:physicalOrLogicalExtent XSD:Literal .
 
-ex:Immagini_URI a rico:RecordResource ;
-    rico:Identifier XSD:Literal ;
-    rico:hasOrHadAppellation XSD:Literal .
+<http://example.org/id_immagine_VALUE> a rico:RecordResource ;
+    rdfs:label "instance based on 'id_immagine'" ;
+    rico:hasOrHadAppellation XSD:Literal ;
+    rico:hasOrHadIdentifier rico:Identifier .
 
-ex:Persona_URI a rico:Person .
-
-ex:Physical_Location_URI a rico:Place .
-
-ex:Serie_URI a rico:RecordSet ;
-    rico:Identifier XSD:Literal ;
+<http://example.org/id_serie_VALUE> a rico:RecordSet ;
+    rdfs:label "instance based on 'id_serie'" ;
+    rico:dateOrDateRange rico:date ;
     rico:directlyIncludes rico:RecordSet ;
     rico:generalDescription XSD:Literal ;
-    rico:hasBeginningDate "Beginning date URI"^^xsd:string ;
-    rico:hasEndDate "End date URI"^^xsd:string ;
+    rico:hasBeginningDate rico:date ;
+    rico:hasEndDate rico:date ;
     rico:hasOrHadAppellation XSD:Literal ;
-    rico:identifier XSD:Literal ;
+    rico:hasOrHadIdentifier rico:Identifier ;
     rico:physicalOrLogicalExtent XSD:Literal .
 
-ex:Sottoserie_URI a rico:RecordSet ;
-    rico:Identifier XSD:Literal ;
+<http://example.org/id_sottoserie_VALUE> a rico:RecordSet ;
+    rdfs:label "instance based on 'id_sottoserie'" ;
+    rico:dateOrDateRange rico:date ;
     rico:directlyIncludes rico:RecordSet ;
     rico:generalDescription XSD:Literal ;
-    rico:hasBeginningDate "Beginning date URI"^^xsd:string ;
-    rico:hasEndDate "End date URI"^^xsd:string ;
-    rico:hasOrHadTitle XSD:Literal ;
+    rico:hasBeginningDate rico:date ;
+    rico:hasEndDate rico:date ;
+    rico:hasOrHadIdentifier rico:Identifier ;
+    rico:hasOrHadTitle rico:Title ;
     rico:identifier XSD:Literal ;
-    rico:isDirectlyIncludedIn ex:ricoRecordSet ;
+    rico:isDirectlyIncludedIn rico:RecordSet ;
     rico:physicalOrLogicalExtent XSD:Literal .
 
-ex:mittenti_extra OWL:sameAs "VIAF extra"^^xsd:string .
-
-place:ricoplace a rico:Place ;
-    rdfs:label "rico:place" .
-
-<http://example.org/entity/Persona_URI> a rico:Agent ;
-    rdfs:label "Persona URI" .
+<http://example.org/mittenti_extra_VALUE> a rico:Person ;
+    rdfs:label "instance based on 'mittenti extra'" ;
+    OWL:sameAs "VIAF extra"^^xsd:string .
 
