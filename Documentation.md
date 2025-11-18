@@ -28,6 +28,12 @@ The script relies on non-standard python libraries to run:
 
 
 
+**External Services:**
+
+* **GeoNames Account:** A valid username is required for querying the GeoNames API for coordinates and feature codes if they are not found in the local cache.
+
+
+
 
 
 ## Configuration:
@@ -35,10 +41,25 @@ The script relies on non-standard python libraries to run:
 The script relies on several file paths and constants defined at the beginning of the code:
 
 
+
 * mapping\_path: with a default value of “mapping1.xlsx” → The excel file defining the column-to-predicate mappings.
 * instances\_path: with a default value of “instances.xlsx” → The excel file containing the raw data instances to be transformed
 * output\_path: with a default value of “output2.ttl” → The path where the final RDF graph will be saved
 * BASE\_NS: with a default value of “http://example.org/” → The root URI for any locally generated entities and custom vocabularies
+* User Credentials (GeoNames Username): required for usage of the live GeoNames API for extracting location features and long/lat
+
+
+
+**Namespaces:**
+
+The script initializes a BASE\_NS (http://example.org/) and bind the following RiC-O specific sub-namespaces for clean URI generation:
+
+* rico: The main ontology
+* place/ : For generated location entities
+* date/ : For generated date entities
+* identifier/ : For extracted IDs
+* title/ : For document titles
+* appellation/ : For names/labels
 
 
 
@@ -54,17 +75,59 @@ The script processes the input data based on a sheet-by-sheet correspondence:
 
 ## Entity Creation Rules:
 
-The script handles subject-to-object mapping with specific logic
+The script handles subject-to-object mapping with specific logic. Instead of attaching data as simple strings (Literals), it creates separate nodes (entities) to allow for a richer data description. This logic is determined by the Predicate defined the "mapping1.xlsx".
 
-* Date Normalization: if a column value matches a date pattern (YYYYMMDD or YYYYMMDD - YYYYMMDD), it is parsed and added using rico:hasBeginningDate, rico:hasEndDate, or simply rico:hasDate and is normalized to xsd:date format.
-* Literal-to-URI Conversion: if the predicate is in LITERAL\_TO\_ENTITY\_PREDICATES (e.g., rico:hasOrHadLocation, rico:hasSender), then the literal string value is converted into a new URI entity (entity\_uri)
 
-&nbsp;	If the predicate is rico:hasOrHadLocation, the new entity is assigned rdf:type rico:place which is then attributed a GeoNames id 	and URI using owl:sameAs
 
-&nbsp;	Otherwise, defaulting to rdf:type rico:Agent
+1. **Places** (rico:isAssociatedWithPlace)
 
-* Structural URI Mapping: if the predicate is in STRUCTURAL\_URI\_PREDICATES (e.g., rico:isDirectlyIncludedIn), then the object is forced into a URI based on the BASE\_NS.
-* External URI Detection: The detect\_object\_term function automatically converts strings containing URLs, VIAF URIs into rdflib.URIRef objects
+* **Logic:** it checks if the object is a URI or a string
+* **Action:** creates a rico:place entity
+* **Enrichment:** Cleans the name then searches geonamescache (local), if no name is found in the local cache then it searches the GeoNames API and adds "wgs84:lat", "wgs84:long" and owl:sameAs as well as feature codes to the place entity
+
+
+
+2\. **Dates** (rico:date)
+
+* **Logic:** it parses the input string using Regex
+* **Supported formats:** YYYY, YYYYMMDD, YYYY-YYYY, YYYYMMDD-YYYYMMDD.
+* **Action:** it splits ranges into start and end components
+
+&nbsp;	- Creates a unique URI based on {Subject}\_{DatePart} to make sure that dates are unique to the record they describe
+
+&nbsp;	- Adds rico:normalizedDateValue (typed as xsd:date or xsd:gYear)
+
+&nbsp;	- Adds rico:expressedDate (whenever an expressed date is found)
+
+
+
+3\. **Identifiers** (rico:hasOrHadIdentifier)
+
+* **Logic:** Identifiers are treated as distinct objects and not properties
+* **Action:**
+
+	- creates a URI in the identifier/ namespaces
+
+&nbsp;	- types it as rico:Identifier
+
+&nbsp;	- adds the value as an rdfs:label
+
+
+
+4\. **Titles \& Appellations** (rico:hasOrHadTitle, rico:hasOrHadAppellation)
+
+* **Logic:** Names and titles are entities
+* **Action:** creates entities in title/ or appellation/ namespaces and links them back to the subject they describe
+
+
+
+5\. **Agents** (rico:hasSender, rico:isAssociatedWith)
+
+* **Logic:** if the object maps a valid VIAF URL (extracted via Regex) or a general agent predicate
+* **Action:** it creates a rico:Agent entity
+* **Special Rule:** if the input sheet is "documento", it automatically adds both rico:hasSender and rico:isAssociatedWith for specific agents
+
+
 
 
 
@@ -93,9 +156,7 @@ After the initial RDF generation loop is complete, the script performs a data en
 
 * make\_safe\_uri\_label(value): Cleans a string value by removing special characters and replacing spaces with underscores, ensuring its validity as a safe URI path segment.
 * parse\_normalized\_dates(date\_str): Parses date strings in YYYYMMDD format (single dates or range) and returns start and end components.
-* normalize\_to\_xsd(date\_str): Converts an 8-digit date string into the ISO YYYY-MM-DD format with xsd:date compatibility
+* format\_date\_for\_xsd(date\_str): Converts an 8-digit date string into the ISO YYYY-MM-DD format with xsd:date compatibility
 * detect\_object\_term(obj\_val\_str, prefixes): Determines the correct RDF term type (Literal, URIRef for VIAF/URL) for an object value
-* get\_namespace(term)
-
-
-
+* find\_geonames\_id\_by\_label(label): hybrid searchers: looks in local cache first, then calls the API if the cache is missing returns a numeric ID
+* fetch\_and\_add\_geonames\_features(g, place\_uri, geonames\_id, place\_label): takes a GeoName ID, fetches the metadata (Lat/Long/Class) and writes the triples directly to the graph
