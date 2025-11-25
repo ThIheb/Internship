@@ -451,21 +451,74 @@ for mapping_sheet in mapping_excel.sheet_names:
             # 4. RANGE LOGIC (Buste 22-29)
             
             elif not handled_custom and final_pred in {ns_rico["directlyIncludes"], ns_rico["includes"]}:
-                range_match = re.match(r"^([A-Za-z]+)\s*(\d+)\s*-\s*(\d+)$", obj_val_str)
-                if range_match:
-                    prefix_word = range_match.group(1).lower()
-                    start_num = int(range_match.group(2))
-                    end_num = int(range_match.group(3))
-                    if "bust" in prefix_word: uri_suffix_separator = "_B"
-                    elif "fascicol" in prefix_word: uri_suffix_separator = "_F"
-                    else: uri_suffix_separator = f"_{prefix_word[0].upper()}"
-                    for i in range(start_num, end_num + 1):
-                        existing_child_id = f"{subj_val}{uri_suffix_separator}{i}"
-                        child_uri_pointer = URIRef(f"{BASE_NS}{make_safe_uri_label(existing_child_id)}")
-                        g.add((subj_uri, final_pred, child_uri_pointer))
-                    continue 
-                else:
-                    final_obj_term = URIRef(f"{BASE_NS}{make_safe_uri_label(obj_val_str)}")
+                
+                # Split by semicolon to handle distinct groups (e.g. "Buste 1-5; Busta 10...")
+                groups = obj_val_str.split(';')
+                
+                for group in groups:
+                    group = group.strip()
+                    if not group: continue
+
+                    # Variable to remember the last Busta number seen in THIS group
+                    # This allows "Busta 13, fascc. 1" to know it belongs to Busta 13
+                    current_busta_num = None
+
+                    # Regex: Finds "bust..." or "fasc..." followed by numbers
+                    type_pattern = r"(?P<type>(?:bust|fasc)[a-z\.]*)\s*(?P<nums>[\d\s,\-\+]+)"
+                    
+                    matches = re.finditer(type_pattern, group, re.IGNORECASE)
+                    
+                    for match in matches:
+                        type_str = match.group("type").lower()
+                        nums_str = match.group("nums").strip()
+                        
+                        # Normalize separators (+ becomes ,)
+                        nums_str = nums_str.replace('+', ',')
+                        nums_str = nums_str.strip(', ')
+                        
+                        # Expand the numbers string into a list of integers
+                        expanded_nums = []
+                        parts = nums_str.split(',')
+                        for part in parts:
+                            part = part.strip()
+                            if '-' in part:
+                                try:
+                                    s, e = part.split('-')
+                                    expanded_nums.extend(range(int(s), int(e) + 1))
+                                except ValueError: pass
+                            elif part.isdigit():
+                                expanded_nums.append(int(part))
+
+                        # Process the expanded numbers based on type
+                        if "bust" in type_str:
+                            for num in expanded_nums:
+                                # 1. Create the Busta URI
+                                # ID Structure: Subject + _B + Number (e.g., S1_SS1_B13)
+                                child_suffix = f"_B{num}"
+                                child_uri_str = f"{subj_val}{child_suffix}"
+                                
+                                child_uri = URIRef(f"{BASE_NS}{make_safe_uri_label(child_uri_str)}")
+                                g.add((subj_uri, final_pred, child_uri))
+                                
+                                # 2. Update context: Any subsequent fascicoli belong to this Busta
+                                current_busta_num = num
+
+                        elif "fasc" in type_str:
+                            for num in expanded_nums:
+                                # 1. Create the Fascicolo URI
+                                if current_busta_num is not None:
+                                    # ID Structure: Subject + _B{Busta} + _{FascPad}
+                                    # Example: S1_SS1_B13_001
+                                    child_suffix = f"_B{current_busta_num}_{num:03d}"
+                                else:
+                                    # Fallback if no Busta defined before (e.g., "Fascicoli 1-5" appearing alone)
+                                    child_suffix = f"_F{num:03d}"
+                                
+                                child_uri_str = f"{subj_val}{child_suffix}"
+                                
+                                child_uri = URIRef(f"{BASE_NS}{make_safe_uri_label(child_uri_str)}")
+                                g.add((subj_uri, final_pred, child_uri))
+
                 handled_custom = True
 
             
