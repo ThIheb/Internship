@@ -166,6 +166,11 @@ prefixes["title"] = Namespace(f"{BASE_NS}title/")
 g.bind("title", prefixes["title"]) 
 ns_title = prefixes["title"]
 
+# Namespace for Instantiations
+prefixes["inst"] = Namespace(f"{BASE_NS}inst/")
+g.bind("inst", prefixes["inst"]) 
+ns_inst = prefixes["inst"]
+
 # Namespace for agents
 prefixes["person"] = Namespace(f"{BASE_NS}person/")
 g.bind("person", prefixes["person"]) 
@@ -204,6 +209,10 @@ RICO_TITLE_CLASS = ns_rico["Title"]
 RICO_HAS_IDENTIFIER_URI = ns_rico["hasOrHadIdentifier"]
 RICO_IDENTIFIER_CLASS = ns_rico["Identifier"]
 
+# Instantiation constants
+RICO_HAS_INSTANTIATION = ns_rico["hasOrHadInstantiation"]
+RICO_INSTANTIATION_CLASS = ns_rico["Instantiation"]
+# dates constants
 RICO_DATE_PREDICATE = ns_rico["dateOrDateRange"]
 RICO_DATE_DATATYPE = ns_rico["Date"]
 RICO_HAS_BEGIN_DATE = ns_rico["hasBeginningDate"]
@@ -212,8 +221,6 @@ RICO_HAS_CREATION_DATE = ns_rico["hasCreationDate"]
 RICO_EXPRESSED_DATE = ns_rico["expressedDate"]
 RICO_NORMALIZED_DATE = ns_rico["normalizedDateValue"]
 
-# Predicates that typically link to a Person/Agent
-# These trigger the logic for the "Fascicolo" sheet
 PERSON_PREDICATES = {
     ns_rico["hasSender"],
     ns_rico["hasRecipient"],
@@ -233,8 +240,13 @@ LITERAL_TO_ENTITY_PREDICATES = {
 
 STRUCTURAL_URI_PREDICATES = {
     ns_rico["isDirectlyIncludedIn"],
-    ns_rico["isIncludedIn"]
+    ns_rico["isIncludedIn"],
+    ns_rico["directlyIncludes"],
+    ns_rico["includes"]
 }
+
+# Sheets where Range Logic applies (First two sheets)
+target_range_sheets = mapping_excel.sheet_names[:2]
 
 # Processing loop
 
@@ -275,7 +287,6 @@ for mapping_sheet in mapping_excel.sheet_names:
         pred = ns_pred[predicate_str.split(":", 1)[1]] if ns_pred else URIRef(predicate_str) 
         
         # SAFEGUARD: Skip explicit rdf:type mappings for Agents in Excel
-        # This ensures the custom logic controls the entity creation
         if pred == RDF.type and (ns_rico["Person"] in str(base_object) or ns_rico["Agent"] in str(base_object)):
              continue
 
@@ -293,27 +304,17 @@ for mapping_sheet in mapping_excel.sheet_names:
             final_pred = pred 
             handled_custom = False
 
-            
-            # 1. LOGIC: SHEET "DOCUMENTO" (mittenti extra + viaf extra)
-            
             if mapping_sheet_lower == "documento" and obj_col and "mittenti extra" in obj_col.lower():
-                
                 name_val = obj_val_str
-                
-                # Look for 'viaf extra' column
                 viaf_code = None
                 for c in inst_row.index:
                     if "viaf" in c and "extra" in c:
                         viaf_code = inst_row[c]
                         break
-                
                 external_link = None
-                
-                #  Check if both Name and VIAF exist
                 is_person = False
                 if pd.notna(viaf_code):
                     viaf_val_str = str(viaf_code).strip()
-                    # Must not be empty or 'nan'
                     if viaf_val_str and viaf_val_str.lower() != "nan":
                         viaf_match = re.search(r"(\d+)$", viaf_val_str)
                         if viaf_match:
@@ -324,46 +325,34 @@ for mapping_sheet in mapping_excel.sheet_names:
                 if is_person:
                     entity_type = ns_rico["Person"]
                     entity_ns = prefixes["person"]
-                    # print(f"   -> [Documento] Identified Person: {name_val}")
                 else:
                     entity_type = ns_rico["Agent"]
                     entity_ns = prefixes["agent"]
-                    # print(f"   -> [Documento] Identified Agent: {name_val}")
 
                 safe_label = make_safe_uri_label(name_val)
                 agent_uri = entity_ns[safe_label]
                 
                 if (agent_uri, RDF.type, entity_type) not in g:
                     g.add((agent_uri, RDF.type, entity_type))
-                    g.add((agent_uri, RDFS.label, Literal(name_val)))
                     g.add((agent_uri, ns_rico["hasOrHadName"], Literal(name_val)))
                     if external_link:
                         g.add((agent_uri, OWL.sameAs, external_link))
                         
                 final_obj_term = agent_uri
                 handled_custom = True
-
-            
-            # 2. LOGIC: SHEET "FASCICOLO" (Predicates + Column "VIAF")
             
             elif mapping_sheet_lower == "fascicolo" and final_pred in PERSON_PREDICATES:
                 name_val = obj_val_str
-                
-                # Look for column named specifically "VIAF" (or "link viaf")
                 viaf_code = None
                 for c in inst_row.index:
-                    # Checks strict 'viaf' or 'link viaf' 
                     if c == "viaf" or c == "link viaf":
                         viaf_code = inst_row[c]
                         break
-                
                 external_link = None
                 is_person = False
-
-                # LOGIC: If VIAF column has data -> Person, else Agent
                 if pd.notna(viaf_code):
-                     viaf_val_str = str(viaf_code).strip()
-                     if viaf_val_str and viaf_val_str.lower() != "nan":
+                      viaf_val_str = str(viaf_code).strip()
+                      if viaf_val_str and viaf_val_str.lower() != "nan":
                         viaf_match = re.search(r"(\d+)$", viaf_val_str)
                         if viaf_match:
                              viaf_id = viaf_match.group(1)
@@ -373,28 +362,21 @@ for mapping_sheet in mapping_excel.sheet_names:
                 if is_person:
                     entity_type = ns_rico["Person"]
                     entity_ns = prefixes["person"]
-                    # print(f"   -> [Fascicolo] Identified Person: {name_val}")
                 else:
                     entity_type = ns_rico["Agent"]
                     entity_ns = prefixes["agent"]
-                    # print(f"   -> [Fascicolo] Identified Agent: {name_val}")
 
                 safe_label = make_safe_uri_label(name_val)
                 agent_uri = entity_ns[safe_label]
                 
                 if (agent_uri, RDF.type, entity_type) not in g:
                     g.add((agent_uri, RDF.type, entity_type))
-                    g.add((agent_uri, RDFS.label, Literal(name_val)))
                     g.add((agent_uri, ns_rico["hasOrHadName"], Literal(name_val)))
                     if external_link:
                         g.add((agent_uri, OWL.sameAs, external_link))
                 
                 final_obj_term = agent_uri
                 handled_custom = True
-
-
-            
-            # 3. STANDARD LOGIC (Dates/Places)
             
             elif not handled_custom and final_pred in LITERAL_TO_ENTITY_PREDICATES:
                 final_safe_label = make_safe_uri_label(obj_val_str) 
@@ -425,7 +407,6 @@ for mapping_sheet in mapping_excel.sheet_names:
                 entity_uri = URIRef(f"{BASE_NS}{uri_path}/{final_safe_label}") 
                 if (entity_uri, RDF.type, entity_type_uri) not in g:
                     g.add((entity_uri, RDF.type, entity_type_uri)) 
-                    g.add((entity_uri, RDFS.label, Literal(entity_label))) 
                     if entity_type_uri == ns_rico["Date"]:
                         value, datatype = format_date_for_xsd(entity_label)
                         if value:
@@ -447,36 +428,24 @@ for mapping_sheet in mapping_excel.sheet_names:
                 final_obj_term = entity_uri
                 handled_custom = True
 
-            
-            # 4. RANGE LOGIC (Buste 22-29)
-            
-            elif not handled_custom and final_pred in {ns_rico["directlyIncludes"], ns_rico["includes"]}:
-                
-                # Split by semicolon to handle distinct groups (e.g. "Buste 1-5; Busta 10...")
+            elif not handled_custom and \
+                 mapping_sheet in target_range_sheets and \
+                 final_pred in {ns_rico["directlyIncludes"], ns_rico["includes"]} and \
+                 re.search(r"(?:bust|fasc)", obj_val_str, re.IGNORECASE):
+
                 groups = obj_val_str.split(';')
-                
                 for group in groups:
                     group = group.strip()
                     if not group: continue
-
-                    # Variable to remember the last Busta number seen in THIS group
-                    # This allows "Busta 13, fascc. 1" to know it belongs to Busta 13
                     current_busta_num = None
-
-                    # Regex: Finds "bust..." or "fasc..." followed by numbers
                     type_pattern = r"(?P<type>(?:bust|fasc)[a-z\.]*)\s*(?P<nums>[\d\s,\-\+]+)"
-                    
                     matches = re.finditer(type_pattern, group, re.IGNORECASE)
                     
                     for match in matches:
                         type_str = match.group("type").lower()
                         nums_str = match.group("nums").strip()
-                        
-                        # Normalize separators (+ becomes ,)
                         nums_str = nums_str.replace('+', ',')
                         nums_str = nums_str.strip(', ')
-                        
-                        # Expand the numbers string into a list of integers
                         expanded_nums = []
                         parts = nums_str.split(',')
                         for part in parts:
@@ -489,51 +458,49 @@ for mapping_sheet in mapping_excel.sheet_names:
                             elif part.isdigit():
                                 expanded_nums.append(int(part))
 
-                        # Process the expanded numbers based on type
                         if "bust" in type_str:
                             for num in expanded_nums:
-                                # 1. Create the Busta URI
-                                # ID Structure: Subject + _B + Number (e.g., S1_SS1_B13)
                                 child_suffix = f"_B{num}"
                                 child_uri_str = f"{subj_val}{child_suffix}"
-                                
                                 child_uri = URIRef(f"{BASE_NS}{make_safe_uri_label(child_uri_str)}")
                                 g.add((subj_uri, final_pred, child_uri))
-                                
-                                # 2. Update context: Any subsequent fascicoli belong to this Busta
                                 current_busta_num = num
-
                         elif "fasc" in type_str:
                             for num in expanded_nums:
-                                # 1. Create the Fascicolo URI
                                 if current_busta_num is not None:
-                                    # ID Structure: Subject + _B{Busta} + _{FascPad}
-                                    # Example: S1_SS1_B13_001
                                     child_suffix = f"_B{current_busta_num}_{num:03d}"
                                 else:
-                                    # Fallback if no Busta defined before (e.g., "Fascicoli 1-5" appearing alone)
                                     child_suffix = f"_F{num:03d}"
-                                
                                 child_uri_str = f"{subj_val}{child_suffix}"
-                                
                                 child_uri = URIRef(f"{BASE_NS}{make_safe_uri_label(child_uri_str)}")
                                 g.add((subj_uri, final_pred, child_uri))
 
                 handled_custom = True
 
-            
-            # 5. STRUCTURAL / TITLES / IDENTIFIERS / DEFAULT
-            
+            # 5. STRUCTURAL / TITLES / IDENTIFIERS / INSTANTIATION / DEFAULT
             if not handled_custom:
                 if final_pred in STRUCTURAL_URI_PREDICATES:
                     final_obj_term = URIRef(f"{BASE_NS}{make_safe_uri_label(obj_val_str)}")
                 
+                #  LOGIC FOR INSTANTIATION 
+                elif final_pred == RICO_HAS_INSTANTIATION:
+                    record_id_clean = make_safe_uri_label(subj_val)
+                    inst_uri = ns_inst[record_id_clean]
+                    
+                    if (inst_uri, RDF.type, RICO_INSTANTIATION_CLASS) not in g:
+                        g.add((inst_uri, RDF.type, RICO_INSTANTIATION_CLASS))
+                        
+                    
+                    # Add inverse relationship
+                    g.add((inst_uri, ns_rico["isOrWasInstantiationOf"], subj_uri))
+                    
+                    final_obj_term = inst_uri
+
                 elif final_pred == RICO_HAS_IDENTIFIER_URI:
                     safe_id_label = make_safe_uri_label(obj_val_str)
                     id_uri = ns_ident[safe_id_label] 
                     if (id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
                         g.add((id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
-                        g.add((id_uri, RDFS.label, Literal(obj_val_str))) 
                     final_obj_term = id_uri
 
                 elif final_pred == RICO_HAS_TITLE_URI:
@@ -541,7 +508,6 @@ for mapping_sheet in mapping_excel.sheet_names:
                     title_uri = ns_title[safe_title_label] 
                     if (title_uri, RDF.type, RICO_TITLE_CLASS) not in g:
                         g.add((title_uri, RDF.type, RICO_TITLE_CLASS))
-                        g.add((title_uri, RDFS.label, Literal(obj_val_str)))
                     final_obj_term = title_uri
                 
                 elif final_pred in {RICO_DATE_PREDICATE, RICO_EXPRESSED_DATE, RICO_NORMALIZED_DATE}:
@@ -551,7 +517,39 @@ for mapping_sheet in mapping_excel.sheet_names:
                     final_obj_term = detect_object_term(obj_val_str, prefixes)
 
             if final_obj_term:
+                if final_pred == RDFS.label and not isinstance(final_obj_term, Literal):
+                     continue 
+                if final_pred == RDF.type and isinstance(final_obj_term, Literal):
+                     continue 
+
                 g.add((subj_uri, final_pred, final_obj_term))
+
+
+# 6. post-processing: move sender from parent to children entity
+
+print("\n🔹 Running Post-Processing: Moving 'hasSender' from Fascicolo to Documents...")
+
+# List to keep track of what we need to delete from the parent
+triples_to_remove = []
+
+#  Iterate over all  (Containers) that have a Sender
+for parent, p, sender in g.triples((None, ns_rico["hasSender"], None)):
+    
+    #  Iterate over predicates that link Parent -> Child
+    for pred in [ns_rico["directlyIncludes"], ns_rico["includes"]]:
+        for parent_node, p2, child in g.triples((parent, pred, None)):
+            
+            #  Add the Sender to the (Document)
+            g.add((child, ns_rico["hasSender"], sender))
+    
+    #  Mark the Parent's sender relationship for deletion
+    triples_to_remove.append((parent, ns_rico["hasSender"], sender))
+
+#  Execute the deletion
+for t in triples_to_remove:
+    g.remove(t)
+
+print("   -> Move complete.")
 
 print(f"\n✅ RDF graph built successfully.")
 print(f"Total triples: {len(g)}")
