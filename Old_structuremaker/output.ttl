@@ -1,0 +1,86 @@
+@prefix agent: <http://example.org/agent/> .
+@prefix date: <http://example.org/date/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rico: <http://example.org/rico#> .
+@prefix storageid: <http://example.org/storageid/> .
+@prefix structure: <http://example.org/structure/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+structure:GENERIC_BUSTA rdfs:label "Generic Representative of 'Busta'" .
+
+structure:GENERIC_DOCUMENTO a rico:Record ;
+    rdfs:label "Generic Representative of 'Documento'" ;
+    rico:dateOrDateRange date:DATE_FROM_DATA_NORMALIZZATA ;
+    rico:directlyIncludes structure:TARGET_ENTITY_FROM_ID_DOCUMENTO ;
+    rico:generalDescription "Data from 'Note'" ;
+    rico:hasOrHadInstantiation "Data from 'nan'" ;
+    rico:hasOrHadTitle "Data from 'collocazione documento (denominazione file)'" ;
+    rico:hasSender agent:EXAMPLE_AGENT_FROM_COLUMN ;
+    rico:isAssociatedWithPlace "Data from 'provenienza della lettera'" ;
+    rico:isDirectlyIncludedIn structure:TARGET_ENTITY_FROM_ID_FASCICOLO ;
+    rico:physicalOrLogicalExtent "Data from 'consistenza'" ;
+    rdfs:comment "Mapped as rico:Record via Custom Logic" .
+
+structure:GENERIC_FASCICOLO_INSTANTIATION a rico:Instantiation ;
+    rico:hasIdentifierType rico:IdentifierType ;
+    rico:hasOrHadIdentifier storageid:EXAMPLE_BOX_ID ;
+    rico:isOrWasInstantiationOf structure:GENERIC_FASCICOLO .
+
+structure:GENERIC_SERIE a rico:RecordSet ;
+    rdfs:label "Generic Representative of 'Serie'" ;
+    rico:dateOrDateRange date:DATE_FROM_ESTREMI_CRONOLOGICI ;
+    rico:generalDescription "Data from 'Descrizione'" ;
+    rico:hasOrHadTitle "Data from 'Denominazione serie'" ;
+    rico:physicalOrLogicalExtent "Data from 'Consistenza'" ;
+    rdf:value "Data from 'nan'" ;
+    rdfs:comment "Mapped as rico:RecordSet via Custom Logic" ;
+    <nan> "Data from 'nan'" .
+
+structure:GENERIC_SOTTOSERIE a rico:RecordSet,
+        "Data from 'denominazione sottoserie'" ;
+    rdfs:label "Generic Representative of 'Sottoserie'" ;
+    rico:dateOrDateRange date:DATE_FROM_ESTREMI_CRONOLOGICI ;
+    rico:directlyIncludes structure:TARGET_ENTITY_FROM_NOTES ;
+    rico:generalDescription "Data from 'Descrizione'" ;
+    rico:hasOrHadTitle "Data from 'denominazione sottoserie'" ;
+    rico:isDirectlyIncludedIn structure:TARGET_ENTITY_FROM_ID_SERIE ;
+    rico:physicalOrLogicalExtent "Data from 'Consistenza'" ;
+    rdfs:comment "Mapped as rico:RecordSet via Custom Logic" .
+
+date:DATE_FROM_DATA a rico:Date ;
+    rico:expressedDate "Value from 'data'" ;
+    rico:normalizedDateValue "YYYY-MM-DD"^^xsd:date .
+
+date:DATE_FROM_DATA_NORMALIZZATA a rico:Date ;
+    rico:expressedDate "Value from 'data normalizzata'" ;
+    rico:normalizedDateValue "YYYY-MM-DD"^^xsd:date .
+
+rico:IdentifierType rdfs:label "storage"^^xsd:string .
+
+storageid:EXAMPLE_BOX_ID a rico:Identifier ;
+    rdfs:label "Box [Number derived from Column]"^^xsd:string .
+
+structure:GENERIC_FASCICOLO a rico:RecordSet ;
+    rdfs:label "Generic Representative of 'Fascicolo'" ;
+    rico:dateOrDateRange date:DATE_FROM_DATA ;
+    rico:hasOrHadIdentifier "Data from 'id_fascicolo'" ;
+    rico:hasOrHadInstantiation "Data from 'id_busta'" ;
+    rico:hasOrHadTitle "Data from 'denominazione fascicolo'" ;
+    rico:hasSender agent:EXAMPLE_AGENT_FROM_COLUMN ;
+    rico:physicalOrLogicalExtent "Data from 'Consistenza'" ;
+    rdfs:comment "Logic: If Box >= 11, creates institution:Node instead of agent:Node",
+        "Mapped as rico:RecordSet via Custom Logic",
+        "Triggered by temp:boxIdentifier on column 'id_busta'" .
+
+agent:EXAMPLE_AGENT_FROM_COLUMN a rico:Agent ;
+    rico:hasOrHadName "Name from 'denominazione fascicolo'",
+        "Name from 'nan'" ;
+    owl:sameAs <http://viaf.org/viaf/EXAMPLE_ID> .
+
+date:DATE_FROM_ESTREMI_CRONOLOGICI a rico:Date ;
+    rico:expressedDate "Value from 'Estremi cronologici'",
+        "Value from 'estremi cronologici'" ;
+    rico:normalizedDateValue "YYYY-MM-DD"^^xsd:date .
+

@@ -1,29 +1,30 @@
 import pandas as pd
 import re
+import requests
 from rdflib import Graph, Namespace, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, XSD, OWL
 from datetime import datetime
-import requests 
 
-# Configuration files
+#  Configuration 
 mapping_path = "mapping1.xlsx"
 instances_path = "instances.xlsx"
 output_path = "output2.ttl"
 BASE_NS = "http://example.org/"
 
+# GeoNames Configuration
 GEONAMES_USERNAME = "th_iheb" 
 
-# Dependency check
+#  Dependency check for GeonamesCache 
 try:
     import geonamescache
     gc = geonamescache.GeonamesCache()
     if not gc.cities:
         print("--- WARNING: geonamescache loaded, but its city data is empty. ---")
 except ImportError:
-    print("--- WARNING: geonamescache not installed. ---")
+    print("--- WARNING: geonamescache not installed. Falling back to API only. ---")
     gc = None
 
-# Utility functions
+#  Utility functions 
 
 def make_safe_uri_label(value):
     if not isinstance(value, str):
@@ -76,57 +77,53 @@ def detect_object_term(obj_val_str, prefixes):
     return Literal(s, datatype=XSD.string)
 
 def find_geonames_id_by_label(label):
-    label_id = make_safe_uri_label(label).replace('_', '').lower()
-    if gc and gc.cities:
-        cities_data = gc.get_cities_by_name(label) 
-        if isinstance(cities_data, dict): data_iterator = cities_data.values()
-        elif isinstance(cities_data, list): data_iterator = [cities_data]
-        else: data_iterator = []
-        for city_list in data_iterator: 
-            for city_data_wrapper in city_list: 
-                if city_data_wrapper and isinstance(city_data_wrapper, dict):
-                    city_details = next(iter(city_data_wrapper.values()))
-                    if city_details['name'].lower() == label.lower():
-                        return city_details['geonameid']
-        for city_list in data_iterator: 
-            for city_data_wrapper in city_list: 
-                if city_data_wrapper and isinstance(city_data_wrapper, dict):
-                    city_details = next(iter(city_data_wrapper.values()))
-                    return city_details['geonameid']
+    if not label: return None
+    clean_label = label.strip()
     
-    if GEONAMES_USERNAME == "your_username_here": return None
-
+    if gc and gc.cities:
+        cities_data = gc.get_cities_by_name(clean_label) 
+        if cities_data:
+            if isinstance(cities_data, dict): data_iterator = cities_data.values()
+            elif isinstance(cities_data, list): data_iterator = [cities_data]
+            else: data_iterator = []
+            for city_list in data_iterator: 
+                for city_data_wrapper in city_list: 
+                    if city_data_wrapper and isinstance(city_data_wrapper, dict):
+                        city_details = next(iter(city_data_wrapper.values()))
+                        if city_details.get('name', '').lower() == clean_label.lower():
+                            return city_details['geonameid']
+    
     try:
         url = "http://api.geonames.org/searchJSON"
-        params = {'q': label, 'maxRows': 1, 'username': GEONAMES_USERNAME}
-        response = requests.get(url, params=params)
+        params = {'q': clean_label, 'maxRows': 1, 'username': GEONAMES_USERNAME, 'style': 'FULL'}
+        response = requests.get(url, params=params, timeout=5)
         response.raise_for_status()
         data = response.json()
         if data and data.get('geonames'):
             return int(data['geonames'][0]['geonameId'])
     except Exception as e:
-        print(f"  -> ERROR calling GeoNames API for '{label}': {e}")
+        print(f"  [GeoNames API] ERROR for '{clean_label}': {e}")
     return None
 
 def fetch_and_add_geonames_features(g, place_uri, geonames_id, place_label):
     if not geonames_id: return
     geonames_uri = URIRef(f"http://sws.geonames.org/{geonames_id}/")
     g.add((place_uri, OWL.sameAs, geonames_uri))
-    lat, lon, fclass, fcode = None, None, None, None
     
+    lat, lon, fclass, fcode = None, None, None, None
     if gc and gc.cities:
-        city_details = gc.cities.get(geonames_id)
+        city_details = gc.cities.get(str(geonames_id))
         if city_details:
             lat = city_details.get('latitude')
             lon = city_details.get('longitude')
             fclass = city_details.get('feature_class')
             fcode = city_details.get('feature_code')
 
-    if (not fclass or not lat) and GEONAMES_USERNAME != "your_username_here":
+    if (not lat or not lon) and GEONAMES_USERNAME:
         try:
             url = "http://api.geonames.org/getJSON"
             params = {'geonameId': geonames_id, 'username': GEONAMES_USERNAME}
-            response = requests.get(url, params=params)
+            response = requests.get(url, params=params, timeout=5)
             response.raise_for_status()
             data = response.json()
             if data:
@@ -142,41 +139,62 @@ def fetch_and_add_geonames_features(g, place_uri, geonames_id, place_label):
     if fclass: g.add((place_uri, NS_GN["featureClass"], Literal(fclass, datatype=XSD.string)))
     if fcode: g.add((place_uri, NS_GN["featureCode"], Literal(fcode, datatype=XSD.string)))
 
-# Main loop
+
+#  Main Initialization 
 
 g = Graph()
 prefixes = {"rdf": RDF, "rdfs": RDFS, "xsd": XSD, "owl": OWL}
 for pfx, ns in prefixes.items(): g.bind(pfx, ns)
-# Namespace for rico
+
+# Namespaces
 prefixes["rico"] = Namespace(f"{BASE_NS}rico#")
 g.bind("rico", prefixes["rico"])
 ns_rico = prefixes["rico"]
-# Namespace for place
+# Temp namespace for custom logic recognition (hasSender, Date)
+prefixes["temp"] = Namespace(f"{BASE_NS}temp#")
+g.bind("temp", prefixes["temp"])
+
+prefixes["storageid"] = Namespace(f"{BASE_NS}storageid/")
+g.bind("storageid", prefixes["storageid"])
+ns_storageid = prefixes["storageid"]
+
+prefixes["type"] = Namespace(f"{BASE_NS}type/")
+g.bind("type", prefixes["type"])
+ns_type = prefixes["type"]
+
+# CorporateBody namespace
+prefixes["corporateBody"] = Namespace(f"{BASE_NS}corporateBody/")
+g.bind("corporateBody", prefixes["corporateBody"])
+# record namespace
+prefixes["record"] = Namespace(f"{BASE_NS}Record/")
+g.bind("record", prefixes["record"])
+# recordSet namespace
+prefixes["recordset"] = Namespace(f"{BASE_NS}RecordSet/")
+g.bind("recordset", prefixes["recordset"])
+# Place namespace
 prefixes["place"] = Namespace(f"{BASE_NS}place/")
 g.bind("place", prefixes["place"]) 
-# Namespace for date
+# date namespace
 prefixes["date"] = Namespace(f"{BASE_NS}date/")
-g.bind("date", prefixes["date"]) 
-# Namespace for Identifier
+g.bind("date", prefixes["date"])
+# Identifier namespace 
 prefixes["identifier"] = Namespace(f"{BASE_NS}identifier/")
 g.bind("identifier", prefixes["identifier"]) 
 ns_ident = prefixes["identifier"]
-# Namespace for Titles
+# Title namespace
 prefixes["title"] = Namespace(f"{BASE_NS}title/")
 g.bind("title", prefixes["title"]) 
 ns_title = prefixes["title"]
-
-# Namespace for Instantiations
+# Instantiation namespace
 prefixes["inst"] = Namespace(f"{BASE_NS}inst/")
 g.bind("inst", prefixes["inst"]) 
 ns_inst = prefixes["inst"]
-
-# Namespace for agents
+# Person namespace
 prefixes["person"] = Namespace(f"{BASE_NS}person/")
 g.bind("person", prefixes["person"]) 
 prefixes["agent"] = Namespace(f"{BASE_NS}agent/")
 g.bind("agent", prefixes["agent"]) 
-# Namespace for Geonames
+
 NS_GN = Namespace("http://www.geonames.org/ontology#")
 g.bind("gn", NS_GN)
 WGS84 = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
@@ -208,12 +226,15 @@ RICO_HAS_TITLE_URI = ns_rico["hasOrHadTitle"]
 RICO_TITLE_CLASS = ns_rico["Title"]
 RICO_HAS_IDENTIFIER_URI = ns_rico["hasOrHadIdentifier"]
 RICO_IDENTIFIER_CLASS = ns_rico["Identifier"]
-
-# Instantiation constants
 RICO_HAS_INSTANTIATION = ns_rico["hasOrHadInstantiation"]
 RICO_INSTANTIATION_CLASS = ns_rico["Instantiation"]
-# dates constants
-RICO_DATE_PREDICATE = ns_rico["dateOrDateRange"]
+
+# Processing Constants 
+RICO_DATE_PREDICATE = URIRef(f"{BASE_NS}temp#dateProcessing")
+TEMP_BOX_ID_PREDICATE = URIRef(f"{BASE_NS}temp#boxIdentifier")
+TEMP_PROPAGATE_SENDER = URIRef(f"{BASE_NS}temp#propagateSender")
+TEMP_INTERMEDIATE_SENDER = URIRef(f"{BASE_NS}temp#intermediateSender")
+
 RICO_DATE_DATATYPE = ns_rico["Date"]
 RICO_HAS_BEGIN_DATE = ns_rico["hasBeginningDate"]
 RICO_HAS_END_DATE = ns_rico["hasEndDate"]
@@ -236,6 +257,7 @@ LITERAL_TO_ENTITY_PREDICATES = {
     RICO_HAS_BEGIN_DATE,
     RICO_HAS_END_DATE,
     RICO_HAS_CREATION_DATE,
+    RICO_DATE_PREDICATE 
 }
 
 STRUCTURAL_URI_PREDICATES = {
@@ -245,13 +267,14 @@ STRUCTURAL_URI_PREDICATES = {
     ns_rico["includes"]
 }
 
-# Sheets where Range Logic applies (First two sheets)
-target_range_sheets = mapping_excel.sheet_names[:2]
-
-# Processing loop
+# Processing Loop 
 
 for mapping_sheet in mapping_excel.sheet_names:
     print(f"\n🔹 Processing mapping sheet: {mapping_sheet}")
+    
+    if "immagin" in mapping_sheet.strip().lower() or "image" in mapping_sheet.strip().lower():
+        print(f"   ⚠️ Skipping '{mapping_sheet}' (Matched ignored list).")
+        continue
 
     mapping_df = mapping_excel.parse(mapping_sheet)
     mapping_df.columns = mapping_df.columns.astype(str).str.strip()
@@ -286,8 +309,7 @@ for mapping_sheet in mapping_excel.sheet_names:
         ns_pred = get_namespace(predicate_str)
         pred = ns_pred[predicate_str.split(":", 1)[1]] if ns_pred else URIRef(predicate_str) 
         
-        # SAFEGUARD: Skip explicit rdf:type mappings for Agents in Excel
-        if pred == RDF.type and (ns_rico["Person"] in str(base_object) or ns_rico["Agent"] in str(base_object)):
+        if pred == RDF.type:
              continue
 
         for _, inst_row in instance_df.iterrows():
@@ -296,60 +318,64 @@ for mapping_sheet in mapping_excel.sheet_names:
             
             if pd.isna(subj_val) or pd.isna(obj_val):
                 continue
-
-            subj_uri = URIRef(f"{BASE_NS}{make_safe_uri_label(subj_val)}")
-            obj_val_str = str(obj_val).strip()
             
+            # URI Generation & Auto Typing
+            # Helper to count parts of the ID (assuming "_" separator)
+            
+            id_parts = len(str(subj_val).split('_'))
+
+            if mapping_sheet_lower in ["serie", "sottoserie", "fascicolo", "fascicoli"]:
+                current_prefix = prefixes["recordset"]
+                rdf_class = ns_rico["RecordSet"]
+            
+            elif mapping_sheet_lower in ["documento", "documenti"]:
+                # Safety check for wrong IDs
+                # If we are in 'documento' sheet, but ID seems to be a Fascicolo (4 parts or less),
+                
+                if id_parts <= 4:
+                    current_prefix = prefixes["recordset"]
+                    rdf_class = ns_rico["RecordSet"]
+                else:
+                    current_prefix = prefixes["record"]
+                    rdf_class = ns_rico["Record"]
+            else:
+                current_prefix = Namespace(BASE_NS)
+                rdf_class = None
+
+            subj_uri = current_prefix[make_safe_uri_label(subj_val)]
+            if rdf_class and (subj_uri, RDF.type, rdf_class) not in g:
+                g.add((subj_uri, RDF.type, rdf_class))
+
+            obj_val_str = str(obj_val).strip()
             final_obj_term = None 
             final_pred = pred 
             handled_custom = False
 
-            if mapping_sheet_lower == "documento" and obj_col and "mittenti extra" in obj_col.lower():
+            # Sender Propogation Logic
+            if str(final_pred) == str(TEMP_PROPAGATE_SENDER):
                 name_val = obj_val_str
-                viaf_code = None
-                for c in inst_row.index:
-                    if "viaf" in c and "extra" in c:
-                        viaf_code = inst_row[c]
-                        break
-                external_link = None
-                is_person = False
-                if pd.notna(viaf_code):
-                    viaf_val_str = str(viaf_code).strip()
-                    if viaf_val_str and viaf_val_str.lower() != "nan":
-                        viaf_match = re.search(r"(\d+)$", viaf_val_str)
-                        if viaf_match:
-                             viaf_id = viaf_match.group(1)
-                             external_link = URIRef(f"http://viaf.org/viaf/{viaf_id}/")
-                             is_person = True
-
-                if is_person:
-                    entity_type = ns_rico["Person"]
-                    entity_ns = prefixes["person"]
-                else:
-                    entity_type = ns_rico["Agent"]
-                    entity_ns = prefixes["agent"]
-
-                safe_label = make_safe_uri_label(name_val)
-                agent_uri = entity_ns[safe_label]
                 
-                if (agent_uri, RDF.type, entity_type) not in g:
-                    g.add((agent_uri, RDF.type, entity_type))
-                    g.add((agent_uri, ns_rico["hasOrHadName"], Literal(name_val)))
-                    if external_link:
-                        g.add((agent_uri, OWL.sameAs, external_link))
-                        
-                final_obj_term = agent_uri
-                handled_custom = True
-            
-            elif mapping_sheet_lower == "fascicolo" and final_pred in PERSON_PREDICATES:
-                name_val = obj_val_str
+                # Default settings (Person)
+                entity_type = ns_rico["Person"]
+                entity_ns = prefixes["person"]
+                is_institution = False
+
+                # BOX 11+ becomes a CorporateBody
+                busta_check = re.search(r"_B(\d+)(?:_|$)", str(subj_val), re.IGNORECASE)
+                if busta_check:
+                    b_num = int(busta_check.group(1))
+                    if b_num >= 11:
+                        entity_type = ns_rico["CorporateBody"]
+                        entity_ns = prefixes["corporateBody"]
+                        is_institution = True
+
                 viaf_code = None
                 for c in inst_row.index:
                     if c == "viaf" or c == "link viaf":
                         viaf_code = inst_row[c]
                         break
+                
                 external_link = None
-                is_person = False
                 if pd.notna(viaf_code):
                       viaf_val_str = str(viaf_code).strip()
                       if viaf_val_str and viaf_val_str.lower() != "nan":
@@ -357,14 +383,6 @@ for mapping_sheet in mapping_excel.sheet_names:
                         if viaf_match:
                              viaf_id = viaf_match.group(1)
                              external_link = URIRef(f"http://viaf.org/viaf/{viaf_id}/")
-                             is_person = True
-
-                if is_person:
-                    entity_type = ns_rico["Person"]
-                    entity_ns = prefixes["person"]
-                else:
-                    entity_type = ns_rico["Agent"]
-                    entity_ns = prefixes["agent"]
 
                 safe_label = make_safe_uri_label(name_val)
                 agent_uri = entity_ns[safe_label]
@@ -375,9 +393,42 @@ for mapping_sheet in mapping_excel.sheet_names:
                     if external_link:
                         g.add((agent_uri, OWL.sameAs, external_link))
                 
-                final_obj_term = agent_uri
+                g.add((subj_uri, TEMP_INTERMEDIATE_SENDER, agent_uri))
                 handled_custom = True
             
+            # Box identifier
+            elif str(final_pred) == str(TEMP_BOX_ID_PREDICATE):
+                busta_match = re.search(r"_B(\d+)", obj_val_str, re.IGNORECASE)
+                if not busta_match: busta_match = re.search(r"(?:box|busta|bust)\s*(\d+)", obj_val_str, re.IGNORECASE)
+                if not busta_match: busta_match = re.search(r"(\d+)$", obj_val_str)
+
+                if busta_match:
+                    busta_num = busta_match.group(1)
+                    box_label = f"Box {busta_num}"
+                    safe_box_id = f"box{busta_num}"
+                    
+                    record_id_clean = make_safe_uri_label(subj_val)
+                    inst_uri = ns_inst[record_id_clean]
+                    
+                    if (inst_uri, RDF.type, RICO_INSTANTIATION_CLASS) not in g:
+                         g.add((inst_uri, RDF.type, RICO_INSTANTIATION_CLASS))
+                         g.add((inst_uri, ns_rico["isOrWasInstantiationOf"], subj_uri))
+                    
+                    box_id_uri = ns_storageid[safe_box_id]
+                    storage_type_uri = ns_rico["IdentifierType"]
+                    g.add((box_id_uri, ns_rico["hasIdentifierType"], storage_type_uri))
+
+                    if (box_id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
+                        g.add((box_id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
+                        g.add((box_id_uri, RDFS.label, Literal(box_label, datatype=XSD.string)))
+
+                    if (storage_type_uri, RDFS.label, Literal("storage", datatype=XSD.string)) not in g:
+                         g.add((storage_type_uri, RDFS.label, Literal("storage", datatype=XSD.string)))
+                else:
+                    print(f"  [DEBUG] WARN: 'temp:boxIdentifier' regex failed on value: '{obj_val_str}'")
+                handled_custom = True
+
+            # Entity creation
             elif not handled_custom and final_pred in LITERAL_TO_ENTITY_PREDICATES:
                 final_safe_label = make_safe_uri_label(obj_val_str) 
                 entity_label = obj_val_str 
@@ -385,26 +436,31 @@ for mapping_sheet in mapping_excel.sheet_names:
                 if final_pred in {RICO_LOCATION_URI, RICO_ASSOC_PLACE_URI}:
                     entity_type_uri = ns_rico["Place"]
                     uri_path = "place"
-                elif final_pred in {RICO_HAS_BEGIN_DATE, RICO_HAS_END_DATE, RICO_HAS_CREATION_DATE}:
+                elif final_pred in {RICO_HAS_BEGIN_DATE, RICO_HAS_END_DATE, RICO_HAS_CREATION_DATE, RICO_DATE_PREDICATE}:
                     entity_type_uri = ns_rico["Date"]
                     uri_path = "date"
                     start_str, end_str = parse_normalized_dates(obj_val_str)
+                    
                     date_uri_part = None
                     if final_pred == RICO_HAS_BEGIN_DATE: date_uri_part = start_str if end_str else None
                     elif final_pred == RICO_HAS_END_DATE: date_uri_part = end_str if end_str else None
                     elif final_pred == RICO_HAS_CREATION_DATE: date_uri_part = start_str if not end_str else None
+                    elif final_pred == RICO_DATE_PREDICATE: date_uri_part = start_str 
+
                     if date_uri_part:
-                        unique_date_string = date_uri_part
-                        final_safe_label = make_safe_uri_label(unique_date_string)
+                        final_safe_label = make_safe_uri_label(date_uri_part)
                         entity_label = date_uri_part 
                     else:
                         if final_pred in {RICO_HAS_BEGIN_DATE, RICO_HAS_END_DATE, RICO_HAS_CREATION_DATE}:
                             continue 
+                        final_safe_label = make_safe_uri_label(obj_val_str)
+
                 else: 
                     entity_type_uri = ns_rico["Agent"] 
                     uri_path = "agent" 
                 
                 entity_uri = URIRef(f"{BASE_NS}{uri_path}/{final_safe_label}") 
+                
                 if (entity_uri, RDF.type, entity_type_uri) not in g:
                     g.add((entity_uri, RDF.type, entity_type_uri)) 
                     if entity_type_uri == ns_rico["Date"]:
@@ -415,85 +471,39 @@ for mapping_sheet in mapping_excel.sheet_names:
                         if mapping_sheet_lower == "documento":
                             expressed_date_val = inst_row.get("data") 
                             if pd.notna(expressed_date_val):
-                                g.add((entity_uri, RICO_EXPRESSED_DATE, Literal(str(expressed_date_val).strip(), datatype=XSD.string)))
-                                g.add((subj_uri, RICO_EXPRESSED_DATE, Literal(str(expressed_date_val).strip(), datatype=XSD.string)))
+                                val_str = str(expressed_date_val).strip()
+                                g.add((entity_uri, RICO_EXPRESSED_DATE, Literal(val_str, datatype=XSD.string)))
+                                g.add((subj_uri, RICO_EXPRESSED_DATE, Literal(val_str, datatype=XSD.string)))
                     elif entity_type_uri == ns_rico["Place"]:
                         geonames_id = find_geonames_id_by_label(str(entity_label))
-                        fetch_and_add_geonames_features(g, entity_uri, geonames_id, str(entity_label))
-                        if g.value(entity_uri, NS_GN.featureClass):
-                             g.add((subj_uri, NS_GN.featureClass, g.value(entity_uri, NS_GN.featureClass)))
-                        if g.value(entity_uri, NS_GN.featureCode):
-                             g.add((subj_uri, NS_GN.featureCode, g.value(entity_uri, NS_GN.featureCode)))
-                
+                        if geonames_id:
+                            fetch_and_add_geonames_features(g, entity_uri, geonames_id, str(entity_label))
+                            if g.value(entity_uri, NS_GN.featureClass):
+                                 g.add((subj_uri, NS_GN.featureClass, g.value(entity_uri, NS_GN.featureClass)))
+                            if g.value(entity_uri, NS_GN.featureCode):
+                                 g.add((subj_uri, NS_GN.featureCode, g.value(entity_uri, NS_GN.featureCode)))
+
                 final_obj_term = entity_uri
                 handled_custom = True
 
-            elif not handled_custom and \
-                 mapping_sheet in target_range_sheets and \
-                 final_pred in {ns_rico["directlyIncludes"], ns_rico["includes"]} and \
-                 re.search(r"(?:bust|fasc)", obj_val_str, re.IGNORECASE):
-
-                groups = obj_val_str.split(';')
-                for group in groups:
-                    group = group.strip()
-                    if not group: continue
-                    current_busta_num = None
-                    type_pattern = r"(?P<type>(?:bust|fasc)[a-z\.]*)\s*(?P<nums>[\d\s,\-\+]+)"
-                    matches = re.finditer(type_pattern, group, re.IGNORECASE)
-                    
-                    for match in matches:
-                        type_str = match.group("type").lower()
-                        nums_str = match.group("nums").strip()
-                        nums_str = nums_str.replace('+', ',')
-                        nums_str = nums_str.strip(', ')
-                        expanded_nums = []
-                        parts = nums_str.split(',')
-                        for part in parts:
-                            part = part.strip()
-                            if '-' in part:
-                                try:
-                                    s, e = part.split('-')
-                                    expanded_nums.extend(range(int(s), int(e) + 1))
-                                except ValueError: pass
-                            elif part.isdigit():
-                                expanded_nums.append(int(part))
-
-                        if "bust" in type_str:
-                            for num in expanded_nums:
-                                child_suffix = f"_B{num}"
-                                child_uri_str = f"{subj_val}{child_suffix}"
-                                child_uri = URIRef(f"{BASE_NS}{make_safe_uri_label(child_uri_str)}")
-                                g.add((subj_uri, final_pred, child_uri))
-                                current_busta_num = num
-                        elif "fasc" in type_str:
-                            for num in expanded_nums:
-                                if current_busta_num is not None:
-                                    child_suffix = f"_B{current_busta_num}_{num:03d}"
-                                else:
-                                    child_suffix = f"_F{num:03d}"
-                                child_uri_str = f"{subj_val}{child_suffix}"
-                                child_uri = URIRef(f"{BASE_NS}{make_safe_uri_label(child_uri_str)}")
-                                g.add((subj_uri, final_pred, child_uri))
-
-                handled_custom = True
-
-            # 5. STRUCTURAL / TITLES / IDENTIFIERS / INSTANTIATION / DEFAULT
+            # Standard Handling for record
             if not handled_custom:
                 if final_pred in STRUCTURAL_URI_PREDICATES:
-                    final_obj_term = URIRef(f"{BASE_NS}{make_safe_uri_label(obj_val_str)}")
+                    safe_obj_label = make_safe_uri_label(obj_val_str)
+                    target_ns = Namespace(BASE_NS)
+                    if mapping_sheet_lower == "documento": target_ns = prefixes["recordset"] 
+                    elif mapping_sheet_lower == "fascicolo":
+                        if final_pred in {ns_rico["includes"], ns_rico["directlyIncludes"]}: target_ns = prefixes["record"]
+                        else: target_ns = prefixes["recordset"]
+                    elif mapping_sheet_lower in ["serie", "sottoserie"]: target_ns = prefixes["recordset"]
+                    final_obj_term = target_ns[safe_obj_label]
                 
-                #  LOGIC FOR INSTANTIATION 
                 elif final_pred == RICO_HAS_INSTANTIATION:
                     record_id_clean = make_safe_uri_label(subj_val)
                     inst_uri = ns_inst[record_id_clean]
-                    
                     if (inst_uri, RDF.type, RICO_INSTANTIATION_CLASS) not in g:
                         g.add((inst_uri, RDF.type, RICO_INSTANTIATION_CLASS))
-                        
-                    
-                    # Add inverse relationship
                     g.add((inst_uri, ns_rico["isOrWasInstantiationOf"], subj_uri))
-                    
                     final_obj_term = inst_uri
 
                 elif final_pred == RICO_HAS_IDENTIFIER_URI:
@@ -510,47 +520,37 @@ for mapping_sheet in mapping_excel.sheet_names:
                         g.add((title_uri, RDF.type, RICO_TITLE_CLASS))
                     final_obj_term = title_uri
                 
-                elif final_pred in {RICO_DATE_PREDICATE, RICO_EXPRESSED_DATE, RICO_NORMALIZED_DATE}:
+                elif final_pred in {RICO_DATE_PREDICATE, TEMP_BOX_ID_PREDICATE, TEMP_PROPAGATE_SENDER, RICO_EXPRESSED_DATE, RICO_NORMALIZED_DATE}:
                     continue
                 
                 else:
                     final_obj_term = detect_object_term(obj_val_str, prefixes)
 
             if final_obj_term:
-                if final_pred == RDFS.label and not isinstance(final_obj_term, Literal):
-                     continue 
-                if final_pred == RDF.type and isinstance(final_obj_term, Literal):
-                     continue 
-
+                if final_pred == RDFS.label and not isinstance(final_obj_term, Literal): continue 
+                if final_pred == RDF.type and isinstance(final_obj_term, Literal): continue 
+                if final_pred in {RICO_DATE_PREDICATE, TEMP_BOX_ID_PREDICATE, TEMP_PROPAGATE_SENDER}: continue
                 g.add((subj_uri, final_pred, final_obj_term))
 
 
-# 6. post-processing: move sender from parent to children entity
+#  Post-processing: Sender propagation
 
-print("\n🔹 Running Post-Processing: Moving 'hasSender' from Fascicolo to Documents...")
+print("\n🔹 Running Post-Processing: Propagating 'hasSender' from Fascicolo to Documents...")
 
-# List to keep track of what we need to delete from the parent
 triples_to_remove = []
 
-#  Iterate over all  (Containers) that have a Sender
-for parent, p, sender in g.triples((None, ns_rico["hasSender"], None)):
-    
-    #  Iterate over predicates that link Parent -> Child
-    for pred in [ns_rico["directlyIncludes"], ns_rico["includes"]]:
-        for parent_node, p2, child in g.triples((parent, pred, None)):
-            
-            #  Add the Sender to the (Document)
-            g.add((child, ns_rico["hasSender"], sender))
-    
-    #  Mark the Parent's sender relationship for deletion
-    triples_to_remove.append((parent, ns_rico["hasSender"], sender))
+for parent, _, sender in g.triples((None, TEMP_INTERMEDIATE_SENDER, None)):
+    for _, _, child in g.triples((parent, ns_rico["includes"], None)): g.add((child, ns_rico["hasSender"], sender))
+    for _, _, child in g.triples((parent, ns_rico["directlyIncludes"], None)): g.add((child, ns_rico["hasSender"], sender))
+    for child, _, _ in g.triples((None, ns_rico["isIncludedIn"], parent)): g.add((child, ns_rico["hasSender"], sender))
+    for child, _, _ in g.triples((None, ns_rico["isDirectlyIncludedIn"], parent)): g.add((child, ns_rico["hasSender"], sender))
+    triples_to_remove.append((parent, TEMP_INTERMEDIATE_SENDER, sender))
 
-#  Execute the deletion
-for t in triples_to_remove:
-    g.remove(t)
+for t in triples_to_remove: g.remove(t)
 
-print("   -> Move complete.")
+print(f"   -> Propagated senders to children and cleaned up temp links.")
 
+# --- Serialization ---
 print(f"\n✅ RDF graph built successfully.")
 print(f"Total triples: {len(g)}")
 g.serialize(destination=output_path, format="turtle")
