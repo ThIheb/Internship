@@ -5,7 +5,7 @@ from rdflib import Graph, Namespace, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, XSD, OWL
 from datetime import datetime
 
-#  Configuration 
+#   Configuration 
 mapping_path = "mapping1.xlsx"
 instances_path = "instances.xlsx"
 output_path = "output2.ttl"
@@ -14,7 +14,7 @@ BASE_NS = "http://example.org/"
 # GeoNames Configuration
 GEONAMES_USERNAME = "th_iheb" 
 
-#  Dependency check for GeonamesCache 
+#   Dependency check for GeonamesCache 
 try:
     import geonamescache
     gc = geonamescache.GeonamesCache()
@@ -24,7 +24,7 @@ except ImportError:
     print("--- WARNING: geonamescache not installed. Falling back to API only. ---")
     gc = None
 
-#  Utility functions 
+#   Utility functions 
 
 def make_safe_uri_label(value):
     if not isinstance(value, str):
@@ -140,7 +140,7 @@ def fetch_and_add_geonames_features(g, place_uri, geonames_id, place_label):
     if fcode: g.add((place_uri, NS_GN["featureCode"], Literal(fcode, datatype=XSD.string)))
 
 
-#  Main Initialization 
+#   Main Initialization 
 
 g = Graph()
 prefixes = {"rdf": RDF, "rdfs": RDFS, "xsd": XSD, "owl": OWL}
@@ -178,9 +178,10 @@ g.bind("place", prefixes["place"])
 prefixes["date"] = Namespace(f"{BASE_NS}date/")
 g.bind("date", prefixes["date"])
 # Identifier namespace 
-prefixes["identifier"] = Namespace(f"{BASE_NS}identifier/")
-g.bind("identifier", prefixes["identifier"]) 
-ns_ident = prefixes["identifier"]
+prefixes["internalIdentifier"] = Namespace(f"{BASE_NS}internalIdentifier/")
+g.bind("internalIdentifier", prefixes["internalIdentifier"]) 
+ns_ident = prefixes["internalIdentifier"]
+prefixes["identifier"] = prefixes["internalIdentifier"] # Fallback for Excel
 # Title namespace
 prefixes["title"] = Namespace(f"{BASE_NS}title/")
 g.bind("title", prefixes["title"]) 
@@ -320,8 +321,6 @@ for mapping_sheet in mapping_excel.sheet_names:
                 continue
             
             # URI Generation & Auto Typing
-            # Helper to count parts of the ID (assuming "_" separator)
-            
             id_parts = len(str(subj_val).split('_'))
 
             if mapping_sheet_lower in ["serie", "sottoserie", "fascicolo", "fascicoli"]:
@@ -329,9 +328,6 @@ for mapping_sheet in mapping_excel.sheet_names:
                 rdf_class = ns_rico["RecordSet"]
             
             elif mapping_sheet_lower in ["documento", "documenti"]:
-                # Safety check for wrong IDs
-                # If we are in 'documento' sheet, but ID seems to be a Fascicolo (4 parts or less),
-                
                 if id_parts <= 4:
                     current_prefix = prefixes["recordset"]
                     rdf_class = ns_rico["RecordSet"]
@@ -345,6 +341,19 @@ for mapping_sheet in mapping_excel.sheet_names:
             subj_uri = current_prefix[make_safe_uri_label(subj_val)]
             if rdf_class and (subj_uri, RDF.type, rdf_class) not in g:
                 g.add((subj_uri, RDF.type, rdf_class))
+
+            # --- INSERTED FIX 1: AUTO-ASSIGN IDENTIFIER ---
+            if rdf_class == ns_rico["Record"]:
+                safe_id_label = make_safe_uri_label(subj_val)
+                id_uri = ns_ident[safe_id_label]
+                g.add((subj_uri, ns_rico["hasOrHadIdentifier"], id_uri))
+
+                if (id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
+                    g.add((id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
+                    g.add((id_uri, RDFS.label, Literal(subj_val, datatype=XSD.string)))
+                    g.add((id_uri, ns_rico["hasIdentifierType"], ns_type["internal"]))
+                    g.add((ns_type["internal"], RDFS.label, Literal("Internal", datatype=XSD.string)))
+            # ----------------------------------------------
 
             obj_val_str = str(obj_val).strip()
             final_obj_term = None 
@@ -417,6 +426,8 @@ for mapping_sheet in mapping_excel.sheet_names:
                     box_id_uri = ns_storageid[safe_box_id]
                     storage_type_uri = ns_rico["IdentifierType"]
                     g.add((box_id_uri, ns_rico["hasIdentifierType"], storage_type_uri))
+                    
+                    g.add((inst_uri, ns_rico["hasOrHadIdentifier"], box_id_uri))
 
                     if (box_id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
                         g.add((box_id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
@@ -530,10 +541,20 @@ for mapping_sheet in mapping_excel.sheet_names:
                 if final_pred == RDFS.label and not isinstance(final_obj_term, Literal): continue 
                 if final_pred == RDF.type and isinstance(final_obj_term, Literal): continue 
                 if final_pred in {RICO_DATE_PREDICATE, TEMP_BOX_ID_PREDICATE, TEMP_PROPAGATE_SENDER}: continue
+                
+                # --- INSERTED FIX 2: FILTER TEMP & GARBAGE ---
+                if str(final_pred).startswith(str(prefixes["temp"])):
+                    continue
+                
+                val_check = str(final_obj_term).strip()
+                if not val_check or val_check.lower() == "nan" or val_check == "Persona URI":
+                    continue
+                # ---------------------------------------------
+
                 g.add((subj_uri, final_pred, final_obj_term))
 
 
-#  Post-processing: Sender propagation
+#   Post-processing: Sender propagation
 
 print("\n🔹 Running Post-Processing: Propagating 'hasSender' from Fascicolo to Documents...")
 
