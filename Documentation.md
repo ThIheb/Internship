@@ -13,7 +13,20 @@ The Albini collection is mapped in accordance with a hierarchical structure that
 
 
 
-This mapping is accomplished using a python script that takes two excel files (A mapping file and an instances file), then generates RDF triples in the Turtle (.ttl) format. The script is designed to read and interpret column-to-predicate mappings and create URI instances for entities. Whenever possible the script enriches entities with external data from external ontologies.
+This mapping is accomplished using a python script that takes two excel files (A mapping file and an instances file), then generates RDF triples in the Turtle (.ttl) format. The script is designed to read and interpret column-to-predicate mappings and create URI instances for entities. Whenever possible the script enriches entities with external data from external ontologies. The script utilizes RICO (Records in Contexts) ontology to describe archival records, agents, places and their relationships.
+
+
+
+## Overview:
+
+The script performs the Following key actions:
+
+1. **Reads mapping rules**: specific relationships defined in an Excel mapping file.
+2. **Processes Instance Data**: Iterates through archival data present in the Instances Excel file, going through the different sheets of the document (Serie, Sottoserie, Fascicolo, Documento).
+3. **Entity Extraction and Enrichment**: The automatic detection and creation for agents (People/Corporate Bodies), Dates and Places.
+4. **Geo-Enrichment**: Connects place names to GeoNames data (via local cache or API) to retrieve longitude and latitude as well as feature classes.
+5. **Hierarchy building**: Constructs an archival tree (RecordSets containing Records).
+6. **Serialization**: Outputs to a Turtle (.ttl) RDF file.
 
 
 
@@ -54,12 +67,12 @@ The script relies on several file paths and constants defined at the beginning o
 
 The script initializes a BASE\_NS (http://example.org/) and bind the following RiC-O specific sub-namespaces for clean URI generation:
 
-* rico: The main ontology
+* rico: The main ontology (https://www.ica.org/standards/RiC/ontology#)
 * place/ : For generated location entities
 * date/ : For generated date entities
 * identifier/ : For extracted IDs
 * title/ : For document titles
-* appellation/ : For names/labels
+* corporateBody/ : For senders that are corporateBody
 
 
 
@@ -70,6 +83,15 @@ The script processes the input data based on a sheet-by-sheet correspondence:
 1. First, iterating through each sheet of the mapping\_path file
 2. Second, attempting to find a matching sheet name in the instances\_path file
 3. Finally, for each row in the mapping sheet, defining a subject, predicate and object rule
+
+
+
+**Hierarchy and Typing:**
+
+The script automatically assigns RDF classes based on the sheet name and ID structure:
+
+* **RecordSet**(rico:RecordSet): Used for 'Serie' and 'Fascicolo'
+* **Record**(rico:Record): Used for 'Documento'
 
 
 
@@ -93,11 +115,11 @@ The script handles subject-to-object mapping with specific logic. Instead of att
 * **Supported formats:** YYYY, YYYYMMDD, YYYY-YYYY, YYYYMMDD-YYYYMMDD.
 * **Action:** it splits ranges into start and end components
 
-&nbsp;	- Creates a unique URI based on {Subject}\_{DatePart} to make sure that dates are unique to the record they describe
+ 	- Creates a unique URI based on {Subject}\_{DatePart} to make sure that dates are unique to the record they describe
 
-&nbsp;	- Adds rico:normalizedDateValue (typed as xsd:date or xsd:gYear)
+ 	- Adds rico:normalizedDateValue (typed as xsd:date or xsd:gYear)
 
-&nbsp;	- Adds rico:expressedDate (whenever an expressed date is found)
+ 	- Adds rico:expressedDate (whenever an expressed date is found)
 
 
 
@@ -106,26 +128,33 @@ The script handles subject-to-object mapping with specific logic. Instead of att
 * **Logic:** Identifiers are treated as distinct objects and not properties
 * **Action:**
 
-	- creates a URI in the identifier/ namespaces
+  * creates a URI in the identifier/ namespaces
 
-&nbsp;	- types it as rico:Identifier
+ 	- types it as rico:Identifier
 
-&nbsp;	- adds the value as an rdfs:label
-
-
-
-4\. **Titles \& Appellations** (rico:hasOrHadTitle, rico:hasOrHadAppellation)
-
-* **Logic:** Names and titles are entities
-* **Action:** creates entities in title/ or appellation/ namespaces and links them back to the subject they describe
+ 	- adds the value as an rdfs:label
 
 
 
-5\. **Agents** (rico:hasSender, rico:isAssociatedWith)
+4\. **Titles** (rico:hasOrHadTitle)
 
-* **Logic:** if the object maps a valid VIAF URL (extracted via Regex) or a general agent predicate
+* **Logic:** The logic is activated when the mapping predicate is rico:hasOrHadTitle
+* **Action:** The title text is converted into a safe URI suffix (e.g., "Verbali 1990" --> "Verbali\_1990), then a new node is created and assigned RDF class rico:Title
+
+
+
+5\. **Agents** (rico:Person or rico:CorporateBody)
+
+* **Logic:** if a "Box" (busta) number is >11, it treats the sender as a CorporateBody; otherise defaulting to Person (custom logic specific to this dataset)
 * **Action:** it creates a rico:Agent entity
-* **Special Rule:** if the input sheet is "documento", it automatically adds both rico:hasSender and rico:isAssociatedWith for specific agents
+* **Special Rule:** Senders attached toe a Fascicolo are temporarily stored and then propogated down to every Documento contained within that folder during post-processing
+
+
+
+6\. **Physical Insantiations (Boxes)**
+
+* **Logic:** if a string such as "Busta 10" is detected
+* **Action:** it creates a rico:instantiation entity linked to the record and a rico:Identifier of type "storage" for the physical location of each record it finds within the instances Excel file
 
 
 
