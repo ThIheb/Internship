@@ -342,7 +342,7 @@ for mapping_sheet in mapping_excel.sheet_names:
             if rdf_class and (subj_uri, RDF.type, rdf_class) not in g:
                 g.add((subj_uri, RDF.type, rdf_class))
 
-            # --- INSERTED FIX 1: AUTO-ASSIGN IDENTIFIER ---
+            
             if rdf_class == ns_rico["Record"]:
                 safe_id_label = make_safe_uri_label(subj_val)
                 id_uri = ns_ident[safe_id_label]
@@ -351,9 +351,9 @@ for mapping_sheet in mapping_excel.sheet_names:
                 if (id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
                     g.add((id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
                     g.add((id_uri, RDFS.label, Literal(subj_val, datatype=XSD.string)))
-                    g.add((id_uri, ns_rico["hasIdentifierType"], ns_type["internal"]))
-                    g.add((ns_type["internal"], RDFS.label, Literal("Internal", datatype=XSD.string)))
-            # ----------------------------------------------
+                    g.add((id_uri, ns_rico["hasIdentifierType"], ns_type["internalIdentifier"]))
+                    g.add((ns_type["internalIdentifier"], RDFS.label, Literal("InternalIdentifier", datatype=XSD.string)))
+            
 
             obj_val_str = str(obj_val).strip()
             final_obj_term = None 
@@ -424,17 +424,18 @@ for mapping_sheet in mapping_excel.sheet_names:
                          g.add((inst_uri, ns_rico["isOrWasInstantiationOf"], subj_uri))
                     
                     box_id_uri = ns_storageid[safe_box_id]
-                    storage_type_uri = ns_rico["IdentifierType"]
-                    g.add((box_id_uri, ns_rico["hasIdentifierType"], storage_type_uri))
+                    storage_type_uri = ns_type["StorageIdentifier"]
+                    
+                    g.add((storage_type_uri, RDF.type, ns_rico["IdentifierType"]))
+                    g.add((storage_type_uri, RDFS.label, Literal("Storage Identifier", datatype=XSD.string)))
                     
                     g.add((inst_uri, ns_rico["hasOrHadIdentifier"], box_id_uri))
+                    g.add((box_id_uri, ns_rico["hasIdentifierType"], storage_type_uri))
 
                     if (box_id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
                         g.add((box_id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
                         g.add((box_id_uri, RDFS.label, Literal(box_label, datatype=XSD.string)))
 
-                    if (storage_type_uri, RDFS.label, Literal("storage", datatype=XSD.string)) not in g:
-                         g.add((storage_type_uri, RDFS.label, Literal("storage", datatype=XSD.string)))
                 else:
                     print(f"  [DEBUG] WARN: 'temp:boxIdentifier' regex failed on value: '{obj_val_str}'")
                 handled_custom = True
@@ -522,6 +523,11 @@ for mapping_sheet in mapping_excel.sheet_names:
                     id_uri = ns_ident[safe_id_label] 
                     if (id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
                         g.add((id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
+                        internal_type_uri = ns_type["InternalIdentifier"]
+                        g.add((internal_type_uri, RDF.type, ns_rico["IdentifierType"]))
+                        g.add((internal_type_uri, RDFS.label, Literal("Internal Identifier", datatype=XSD.string)))
+                        g.add((id_uri, ns_rico["hasIdentifierType"], internal_type_uri))
+                        
                     final_obj_term = id_uri
 
                 elif final_pred == RICO_HAS_TITLE_URI:
@@ -542,14 +548,14 @@ for mapping_sheet in mapping_excel.sheet_names:
                 if final_pred == RDF.type and isinstance(final_obj_term, Literal): continue 
                 if final_pred in {RICO_DATE_PREDICATE, TEMP_BOX_ID_PREDICATE, TEMP_PROPAGATE_SENDER}: continue
                 
-                # --- INSERTED FIX 2: FILTER TEMP & GARBAGE ---
+                # Filter for temp
                 if str(final_pred).startswith(str(prefixes["temp"])):
                     continue
                 
                 val_check = str(final_obj_term).strip()
                 if not val_check or val_check.lower() == "nan" or val_check == "Persona URI":
                     continue
-                # ---------------------------------------------
+                
 
                 g.add((subj_uri, final_pred, final_obj_term))
 
