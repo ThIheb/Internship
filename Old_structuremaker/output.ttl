@@ -1,86 +1,90 @@
 @prefix agent: <http://example.org/agent/> .
 @prefix date: <http://example.org/date/> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix inst: <http://example.org/inst/> .
+@prefix internalIdentifier: <http://example.org/internalIdentifier/> .
+@prefix ns1: <http://example.org/temp#> .
+@prefix place: <http://example.org/place/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rico: <http://example.org/rico#> .
 @prefix storageid: <http://example.org/storageid/> .
 @prefix structure: <http://example.org/structure/> .
+@prefix type: <http://example.org/type/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-structure:GENERIC_BUSTA rdfs:label "Generic Representative of 'Busta'" .
+inst:GENERIC_INSTANTIATION_FASCICOLO a rico:Instantiation ;
+    rico:hasOrHadIdentifier storageid:GENERIC_BOX_ID_FASCICOLO ;
+    rico:isOrWasInstantiationOf structure:GENERIC_FASCICOLO .
 
 structure:GENERIC_DOCUMENTO a rico:Record ;
     rdfs:label "Generic Representative of 'Documento'" ;
-    rico:dateOrDateRange date:DATE_FROM_DATA_NORMALIZZATA ;
+    rico:dateOrDateRange date:GENERIC_DATE ;
     rico:directlyIncludes structure:TARGET_ENTITY_FROM_ID_DOCUMENTO ;
-    rico:generalDescription "Data from 'Note'" ;
-    rico:hasOrHadInstantiation "Data from 'nan'" ;
-    rico:hasOrHadTitle "Data from 'collocazione documento (denominazione file)'" ;
-    rico:hasSender agent:EXAMPLE_AGENT_FROM_COLUMN ;
-    rico:isAssociatedWithPlace "Data from 'provenienza della lettera'" ;
+    rico:generalDescription "Data from column 'Note'" ;
+    rico:hasBeginningDate "Data from column 'data normalizzata'" ;
+    rico:hasCreationDate "Data from column 'data normalizzata'" ;
+    rico:hasEndDate "Data from column 'data normalizzata'" ;
+    rico:hasOrHadInstantiation "Data from column 'nan'" ;
+    rico:hasOrHadTitle "Data from column 'collocazione documento (denominazione file)'" ;
+    rico:isAssociatedWithPlace place:GENERIC_PLACE ;
     rico:isDirectlyIncludedIn structure:TARGET_ENTITY_FROM_ID_FASCICOLO ;
-    rico:physicalOrLogicalExtent "Data from 'consistenza'" ;
-    rdfs:comment "Mapped as rico:Record via Custom Logic" .
-
-structure:GENERIC_FASCICOLO_INSTANTIATION a rico:Instantiation ;
-    rico:hasIdentifierType rico:IdentifierType ;
-    rico:hasOrHadIdentifier storageid:EXAMPLE_BOX_ID ;
-    rico:isOrWasInstantiationOf structure:GENERIC_FASCICOLO .
+    rico:physicalOrLogicalExtent "Data from column 'consistenza'" ;
+    ns1:hasSender "Data from column 'nan'" .
 
 structure:GENERIC_SERIE a rico:RecordSet ;
     rdfs:label "Generic Representative of 'Serie'" ;
-    rico:dateOrDateRange date:DATE_FROM_ESTREMI_CRONOLOGICI ;
-    rico:generalDescription "Data from 'Descrizione'" ;
-    rico:hasOrHadTitle "Data from 'Denominazione serie'" ;
-    rico:physicalOrLogicalExtent "Data from 'Consistenza'" ;
-    rdf:value "Data from 'nan'" ;
-    rdfs:comment "Mapped as rico:RecordSet via Custom Logic" ;
-    <nan> "Data from 'nan'" .
+    rico:dateOrDateRange date:GENERIC_DATE ;
+    rico:generalDescription "Data from column 'Descrizione'" ;
+    rico:hasBeginningDate "Data from column 'Estremi cronologici'" ;
+    rico:hasEndDate "Data from column 'Estremi cronologici'" ;
+    rico:hasOrHadTitle "Data from column 'Denominazione serie'" ;
+    rico:physicalOrLogicalExtent "Data from column 'Consistenza'" ;
+    rdf:value "Data from column 'nan'" .
 
 structure:GENERIC_SOTTOSERIE a rico:RecordSet,
-        "Data from 'denominazione sottoserie'" ;
+        "Data from column 'denominazione sottoserie'" ;
     rdfs:label "Generic Representative of 'Sottoserie'" ;
-    rico:dateOrDateRange date:DATE_FROM_ESTREMI_CRONOLOGICI ;
+    rico:dateOrDateRange date:GENERIC_DATE ;
     rico:directlyIncludes structure:TARGET_ENTITY_FROM_NOTES ;
-    rico:generalDescription "Data from 'Descrizione'" ;
-    rico:hasOrHadTitle "Data from 'denominazione sottoserie'" ;
+    rico:generalDescription "Data from column 'Descrizione'" ;
+    rico:hasBeginningDate "Data from column 'estremi cronologici'" ;
+    rico:hasEndDate "Data from column 'estremi cronologici'" ;
+    rico:hasOrHadTitle "Data from column 'denominazione sottoserie'" ;
     rico:isDirectlyIncludedIn structure:TARGET_ENTITY_FROM_ID_SERIE ;
-    rico:physicalOrLogicalExtent "Data from 'Consistenza'" ;
-    rdfs:comment "Mapped as rico:RecordSet via Custom Logic" .
+    rico:physicalOrLogicalExtent "Data from column 'Consistenza'" .
 
-date:DATE_FROM_DATA a rico:Date ;
-    rico:expressedDate "Value from 'data'" ;
-    rico:normalizedDateValue "YYYY-MM-DD"^^xsd:date .
+agent:GENERIC_AGENT a rico:Agent ;
+    rdfs:comment "Logic: Person (or Institution if Box > 10)" .
 
-date:DATE_FROM_DATA_NORMALIZZATA a rico:Date ;
-    rico:expressedDate "Value from 'data normalizzata'" ;
-    rico:normalizedDateValue "YYYY-MM-DD"^^xsd:date .
+internalIdentifier:GENERIC_INTERNAL_ID_FASCICOLO a rico:Identifier ;
+    rdfs:label "Value from id_fascicolo"^^xsd:string ;
+    rico:hasIdentifierType type:InternalIdentifier .
 
-rico:IdentifierType rdfs:label "storage"^^xsd:string .
+place:GENERIC_PLACE a rico:Place .
 
-storageid:EXAMPLE_BOX_ID a rico:Identifier ;
-    rdfs:label "Box [Number derived from Column]"^^xsd:string .
+storageid:GENERIC_BOX_ID_FASCICOLO a rico:Identifier ;
+    rdfs:label "Box [Number]"^^xsd:string ;
+    rico:hasIdentifierType type:StorageIdentifier .
 
 structure:GENERIC_FASCICOLO a rico:RecordSet ;
     rdfs:label "Generic Representative of 'Fascicolo'" ;
-    rico:dateOrDateRange date:DATE_FROM_DATA ;
-    rico:hasOrHadIdentifier "Data from 'id_fascicolo'" ;
-    rico:hasOrHadInstantiation "Data from 'id_busta'" ;
-    rico:hasOrHadTitle "Data from 'denominazione fascicolo'" ;
-    rico:hasSender agent:EXAMPLE_AGENT_FROM_COLUMN ;
-    rico:physicalOrLogicalExtent "Data from 'Consistenza'" ;
-    rdfs:comment "Logic: If Box >= 11, creates institution:Node instead of agent:Node",
-        "Mapped as rico:RecordSet via Custom Logic",
-        "Triggered by temp:boxIdentifier on column 'id_busta'" .
+    rico:dateOrDateRange date:GENERIC_DATE ;
+    rico:hasBeginningDate "Data from column 'data'" ;
+    rico:hasCreationDate "Data from column 'data'" ;
+    rico:hasEndDate "Data from column 'data'" ;
+    rico:hasOrHadIdentifier internalIdentifier:GENERIC_INTERNAL_ID_FASCICOLO ;
+    rico:hasOrHadInstantiation "Data from column 'id_busta'" ;
+    rico:hasOrHadTitle "Data from column 'denominazione fascicolo'" ;
+    rico:hasSender agent:GENERIC_AGENT ;
+    rico:physicalOrLogicalExtent "Data from column 'Consistenza'" ;
+    rdfs:comment "Structure triggered by temp:boxIdentifier" .
 
-agent:EXAMPLE_AGENT_FROM_COLUMN a rico:Agent ;
-    rico:hasOrHadName "Name from 'denominazione fascicolo'",
-        "Name from 'nan'" ;
-    owl:sameAs <http://viaf.org/viaf/EXAMPLE_ID> .
+type:InternalIdentifier a rico:IdentifierType ;
+    rdfs:label "Internal Identifier"^^xsd:string .
 
-date:DATE_FROM_ESTREMI_CRONOLOGICI a rico:Date ;
-    rico:expressedDate "Value from 'Estremi cronologici'",
-        "Value from 'estremi cronologici'" ;
+type:StorageIdentifier a rico:IdentifierType ;
+    rdfs:label "Storage Identifier"^^xsd:string .
+
+date:GENERIC_DATE a rico:Date ;
     rico:normalizedDateValue "YYYY-MM-DD"^^xsd:date .
 

@@ -73,6 +73,10 @@ The script initializes a BASE\_NS (http://example.org/) and bind the following R
 * identifier/ : For extracted IDs
 * title/ : For document titles
 * corporateBody/ : For senders that are corporateBody
+* type/ : Namespace for the static types (Identifiers)
+* temp#: Used for internal logic processing (deleted before the final output).
+* storageid/ : Namespace for Box Identifiers
+* InternalIdentifier/ : Namespace for Document IDs
 
 
 
@@ -160,7 +164,7 @@ The script handles subject-to-object mapping with specific logic. Instead of att
 
 
 
-GeoNames Materialization:
+**GeoNames Materialization:**
 
 After the initial RDF generation loop is complete, the script performs a data enrichment step:
 
@@ -184,8 +188,168 @@ After the initial RDF generation loop is complete, the script performs a data en
 ## Utility Functions:
 
 * make\_safe\_uri\_label(value): Cleans a string value by removing special characters and replacing spaces with underscores, ensuring its validity as a safe URI path segment.
+
+&nbsp;	Logic: - Strips Whitespace.
+
+&nbsp;	       - Removes non-alphanumeric characters (keeps underscores and hyphens).
+
+&nbsp;	       - Replaces spaces with underscores to ensure the URI is valid and unbreakable
+
 * parse\_normalized\_dates(date\_str): Parses date strings in YYYYMMDD format (single dates or range) and returns start and end components.
+
+&nbsp;	Logic: - YYYYMMDD - YYYYMMDD (Full range)
+
+&nbsp;	       - YYYY - YYYY (year range)
+
+&nbsp;	       - YYYYMMDD or YYYY (single point in time)
+
 * format\_date\_for\_xsd(date\_str): Converts an 8-digit date string into the ISO YYYY-MM-DD format with xsd:date compatibility
+
+&nbsp;	Logic: - if 8 digits (20230101) --> returns 2023-01-01 typed as xsd:date.
+
+&nbsp;	       - if 4 digits (2024) --> returns 2023 typed as xsd:gYear
+
 * detect\_object\_term(obj\_val\_str, prefixes): Determines the correct RDF term type (Literal, URIRef for VIAF/URL) for an object value
+
+&nbsp;	Logic: - VIAF URLs: Detects "viaf.org" links and formatting them as valid URIs
+
+&nbsp;	       - Web URLs: "http://" or "www." and converts them into URIs
+
+&nbsp;	       - Detects prefixes like rico:Record, splits the string by :, looks up the prefix in the graph's namespace manager and 			returns a fully expanded URI.
+
+&nbsp;	       - Fallback: if none of the above, it returns it as a plain string Literal
+
 * find\_geonames\_id\_by\_label(label): hybrid searchers: looks in local cache first, then calls the API if the cache is missing returns a numeric ID
+
+&nbsp;	Logic: - Runtime Cache: Checks a Python dictionary "runtime\_geo\_cache" if "Rome" was looked up 5 seconds ago it returns that 			result instantly.
+
+&nbsp;	       - Local Library: Checks "geonamescache" (offline database). If found, it returns ID and save to Runtime Cache.
+
+&nbsp;	       - API Call: If not found locally, calls "api.geonames.org/searchJSON". This is the slowest method, saves the result to the 		Runtime Cache to prevent further API calls for the same city
+
 * fetch\_and\_add\_geonames\_features(g, place\_uri, geonames\_id, place\_label): takes a GeoName ID, fetches the metadata (Lat/Long/Class) and writes the triples directly to the graph
+
+&nbsp;	Logic: - Similar to the search function, it tries the local library first for coordinates then falls back to the API if missing. 		It appends "wgs84:lat" and "wgs84:long" triples to the place entity.
+
+
+
+## Main Processing Loop
+
+The script iterates through every sheet of the Mapping File ("mapping\_excel.sheet\_names).
+
+A first check is conducted to see if the sheet name contains "immagin" or "image", if so it skips processing for that sheet.
+
+
+
+**Mapping Preparation:**
+
+* Parses the specific mapping sheet into a DataFrame
+* Checks for the existence of the corresponding instance data sheet in "instances\_dfs".
+* Checks for required columns ("Subject", "Predicate", "Object", etc.)
+
+
+
+**Nested Iteration:**
+
+The script uses a nested loop structure where:
+
+1. **Outer Loop**: iterates through every row of the Mapping DataFrame
+2. **Inner Loop**: iterates through every row of the Instance DataFrame
+
+
+
+Inside the inner loop, the Following logic is applied to generate triples: 
+
+1. **Subject URI Generation \& Auto-typing**
+
+* Analyses the "Subject" column value
+* Splits the ID by underscored to determine hierarchy depth
+
+&nbsp;	- **Documento Sheet:** if parts <= 4, it classifies as rico:RecordSet. if >4, it classifies as rico:Record.
+
+&nbsp;	- **Serie/Fascicolo Sheets:** Classified as rico:RecordSet
+
+* Creates the "subj\_uri" and adds the "RDF.type"
+
+
+
+2\. **Internal Identifier Auto-Link**
+
+* if the entity is a rico:Record
+
+&nbsp;	- It generates a URI in the internalIdentifier namespace.
+
+&nbsp;	- It links the subject to this ID via "rico:hasOrHadIdentifier".
+
+&nbsp;	- It defines the ID as a rico:Identifier.
+
+&nbsp;	- It links the ID to a specific Identifier Type URI: "ns\_type\["internalIdentifier"] (labeled "InternalIdentifier").
+
+
+
+3\. **Custom Logic Blocks**
+
+The script checks the specific **Predicate** defined in the mapping row to trigger complex logic:
+
+* **Sender Propogation**
+
+	- Detects if the sender is a Person or Corporate Body based on the Box Number (if "\_B11" or higher -> CorporateBody).
+
+&nbsp;	- Checks for a VIAF code in the data row to add "owl:sameAs".
+
+&nbsp;	- Creates an agent\_uri.
+
+&nbsp;	- Creates a temporary triple: Subject -> temp:intermediateSender -> Agent
+
+
+
+* **Box Identifier ("temp:boxIdentifier")**
+
+&nbsp;	- Uses Regex to find "Box X" or "Busta X" in the object value.
+
+&nbsp;	- Creates a rico:Instantiation URI.
+
+&nbsp;	- Links Subject -> isOrWasInstantiationOf -> Instantiation.
+
+&nbsp;	- Creates a storageId URI.
+
+&nbsp;	- Type Linking: creates a ns\_type\["StorageIdentifier"] URI, types it as rico:IdentifierType, and links the box ID to it via 		"rico:hasIdentifierType"
+
+
+
+* **Entity Creation (Dates and Places)**
+
+&nbsp;	- Dates: If the predicate involves dates (hasBeginningDate, etc), it parses the string, creates a rico:Date URI and adds 	"normalizedDateValue" and "expressedDate" whenever possible.
+
+&nbsp;	- Places: If the predicate involves places (isAssociatedWithPlace), it calls "find\_geonames\_id\_by\_label" function. If a place is 	found, it fetches the coordinates and adds wgs84 properties to it.
+
+
+
+* **Standard Mapping**
+
+&nbsp;	- if none of the above custom predicate matches, it handles standard relationships extracted from the mapping Excel file
+
+&nbsp;	- **Structural Links:** if the predicate is "includes", "directlyIncludes", etc. it determines if the target is a Record or RecordSet 	based on the sheet name and creates the link.
+
+&nbsp;	- **Instantiation/Identifiers/Titles:** Handles standard creation of these entities if triggered by standard RiC-O predicates.
+
+&nbsp;	- **Literals/URIs:** Uses "detect\_object\_term" function to decide if the object is a string or a link.
+
+
+
+4\. **Post-Processing: Sender Propagation**
+
+After the loops finish building the graph:
+
+* The script searches for all triples using the "temp:intermediateSender" predicate.
+* It identifies the parent node (likely Fascicolo)
+* It finds all children of those parent nodes (via "rico:directlyIncludes" relationship)
+* It adds rico:hasSender relationship from the Child to the Sender
+* It removes the temporary temp:intermediateSender triples from the graph
+
+
+
+5\. **Serialization**
+
+* The script prints the total number of triples generated.
+* It serializes the final graph to the file path defined in "output\_path" using the Turtle Format.
