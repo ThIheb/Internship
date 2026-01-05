@@ -1622,7 +1622,7 @@ record:S1_SS1_B10_036_06 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B10_036_07 a rico:Record ;
-    rico:expressedDate "25 maggio 1929"^^xsd:string ;
+    rico:expressedDate "1929-05-25 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19290525 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_07 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_07 ;
@@ -1634,7 +1634,7 @@ record:S1_SS1_B10_036_07 a rico:Record ;
     rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B10_036_08 a rico:Record ;
-    rico:expressedDate "1 marzo 1913"^^xsd:string ;
+    rico:expressedDate "1913-03-01 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19130301 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_08 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_08 ;
@@ -1644,18 +1644,6 @@ record:S1_SS1_B10_036_08 a rico:Record ;
     rico:isDirectlyIncludedIn recordset:S1_SS1_B10_036 ;
     rico:normalizedDateValue "1913-03-01"^^xsd:date ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
-
-record:S1_SS1_B10_036_09 a rico:Record ;
-    rico:expressedDate "20 novembre 1923"^^xsd:string ;
-    rico:hasCreationDate date:19231120 ;
-    rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_09 ;
-    rico:hasOrHadInstantiation inst:S1_SS1_B10_036_09 ;
-    rico:hasOrHadTitle title:Albini_10_35_Lettere_Mittenti_Ignoti_09 ;
-    rico:hasSender person:Mittenti_Ignoti ;
-    rico:isAssociatedWithPlace place:Forlì ;
-    rico:isDirectlyIncludedIn recordset:S1_SS1_B10_036 ;
-    rico:normalizedDateValue "1923-11-20"^^xsd:date ;
-    rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B10_036_10 a rico:Record ;
     rico:expressedDate "4 novembre 1916"^^xsd:string ;
@@ -1847,7 +1835,7 @@ record:S1_SS1_B10_036_25 a rico:Record ;
     gn:featureCode "PPLA3"^^xsd:string .
 
 record:S1_SS1_B10_036_26 a rico:Record ;
-    rico:expressedDate "11 settembre 1932"^^xsd:string ;
+    rico:expressedDate "1932-09-11 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19320911 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_26 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_26 ;
@@ -1889,7 +1877,7 @@ record:S1_SS1_B10_036_29 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B10_036_30 a rico:Record ;
-    rico:expressedDate "26 ottobre 1920"^^xsd:string ;
+    rico:expressedDate "1920-10-26 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19201026 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_30 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_30 ;
@@ -1930,10 +1918,12 @@ record:S1_SS1_B10_036_33 a rico:Record ;
     rico:isAssociatedWithPlace place:Treviso ;
     rico:isDirectlyIncludedIn recordset:S1_SS1_B10_036 ;
     rico:normalizedDateValue "1898-07-18"^^xsd:date ;
-    rico:physicalOrLogicalExtent "1"^^xsd:string .
+    rico:physicalOrLogicalExtent "1"^^xsd:string ;
+    gn:featureClass "P"^^xsd:string ;
+    gn:featureCode "PPLA2"^^xsd:string .
 
 record:S1_SS1_B10_036_34 a rico:Record ;
-    rico:expressedDate "22 marzo 1925"^^xsd:string ;
+    rico:expressedDate "22 marzo 2025"^^xsd:string ;
     rico:hasCreationDate date:19250322 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_34 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_34 ;
@@ -1942,7 +1932,9 @@ record:S1_SS1_B10_036_34 a rico:Record ;
     rico:isAssociatedWithPlace place:Bologna ;
     rico:isDirectlyIncludedIn recordset:S1_SS1_B10_036 ;
     rico:normalizedDateValue "1925-03-22"^^xsd:date ;
-    rico:physicalOrLogicalExtent "1"^^xsd:string .
+    rico:physicalOrLogicalExtent "1"^^xsd:string ;
+    gn:featureClass "P"^^xsd:string ;
+    gn:featureCode "PPLA"^^xsd:string .
 
 record:S1_SS1_B10_036_35 a rico:Record ;
     rico:expressedDate "17 maggio 1933"^^xsd:string ;
@@ -1983,7 +1975,7 @@ record:S1_SS1_B10_036_37 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B10_036_38 a rico:Record ;
-    rico:expressedDate "2 febbraio 1928"^^xsd:string ;
+    rico:expressedDate "1928-02-02 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19280202 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_38 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_38 ;
@@ -1995,7 +1987,7 @@ record:S1_SS1_B10_036_38 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B10_036_39 a rico:Record ;
-    rico:expressedDate "14 maggio 1928"^^xsd:string ;
+    rico:expressedDate "1928-05-14 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19280514 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_39 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_39 ;
@@ -2019,7 +2011,7 @@ record:S1_SS1_B10_036_40 a rico:Record ;
     rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B10_036_41 a rico:Record ;
-    rico:expressedDate "14 marzo 1914"^^xsd:string ;
+    rico:expressedDate "1914-03-14 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19140314 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_41 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_41 ;
@@ -2052,7 +2044,7 @@ record:S1_SS1_B10_036_43 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B10_036_44 a rico:Record ;
-    rico:expressedDate "29 settembre 1919"^^xsd:string ;
+    rico:expressedDate "1919-09-19 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19190929 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_44 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_44 ;
@@ -2076,7 +2068,7 @@ record:S1_SS1_B10_036_45 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B10_036_46 a rico:Record ;
-    rico:expressedDate "25 gennaio 1914"^^xsd:string ;
+    rico:expressedDate "1914-01-25 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19140123 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_46 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_46 ;
@@ -2134,7 +2126,7 @@ record:S1_SS1_B10_036_50 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B10_036_51 a rico:Record ;
-    rico:expressedDate "28 dicembre 1925"^^xsd:string ;
+    rico:expressedDate "1925-12-28 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19251228 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_51 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_51 ;
@@ -2155,7 +2147,9 @@ record:S1_SS1_B10_036_52 a rico:Record ;
     rico:isAssociatedWithPlace place:Trieste ;
     rico:isDirectlyIncludedIn recordset:S1_SS1_B10_036 ;
     rico:normalizedDateValue "1924-06-12"^^xsd:date ;
-    rico:physicalOrLogicalExtent "2"^^xsd:string .
+    rico:physicalOrLogicalExtent "2"^^xsd:string ;
+    gn:featureClass "P"^^xsd:string ;
+    gn:featureCode "PPLA"^^xsd:string .
 
 record:S1_SS1_B10_036_53 a rico:Record ;
     rico:expressedDate "21 aprile 1926"^^xsd:string ;
@@ -2218,7 +2212,7 @@ record:S1_SS1_B10_036_57 a rico:Record ;
     rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B10_036_58 a rico:Record ;
-    rico:expressedDate "6 marzo 1912"^^xsd:string ;
+    rico:expressedDate "1912-03-06 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19120306 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_58 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_58 ;
@@ -2230,7 +2224,7 @@ record:S1_SS1_B10_036_58 a rico:Record ;
     rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B10_036_59 a rico:Record ;
-    rico:expressedDate "12 febbraio 1906"^^xsd:string ;
+    rico:expressedDate "1906-02-12 00:00:00"^^xsd:string ;
     rico:hasCreationDate date:19060212 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B10_036_59 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B10_036_59 ;
@@ -3705,9 +3699,7 @@ record:S1_SS1_B1_006_01 a rico:Record ;
     rico:hasSender person:Albertazzi_Adolfo ;
     rico:isAssociatedWithPlace place:Bologna ;
     rico:isDirectlyIncludedIn recordset:S1_SS1_B1_006 ;
-    rico:physicalOrLogicalExtent "1"^^xsd:string ;
-    gn:featureClass "P"^^xsd:string ;
-    gn:featureCode "PPLA"^^xsd:string .
+    rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B1_006_02 a rico:Record ;
     rico:expressedDate "19 novembre 1908"^^xsd:string ;
@@ -3944,7 +3936,6 @@ record:S1_SS1_B1_018_01 a rico:Record ;
     gn:featureCode "PPLA2"^^xsd:string .
 
 record:S1_SS1_B1_019_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19331213 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_019_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_019_01 ;
@@ -4144,7 +4135,6 @@ record:S1_SS1_B1_027_01 a rico:Record ;
     gn:featureCode "PPLA3"^^xsd:string .
 
 record:S1_SS1_B1_028_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19001210 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_028_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_028_01 ;
@@ -4157,7 +4147,6 @@ record:S1_SS1_B1_028_01 a rico:Record ;
     gn:featureCode "PPLA"^^xsd:string .
 
 record:S1_SS1_B1_029_01 a rico:Record ;
-    rico:generalDescription "refuso: Giuio e non GiuLio"^^xsd:string ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_029_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_029_01 ;
     rico:hasOrHadTitle title:Albini_1_29_Baldovino_01 ;
@@ -4768,7 +4757,6 @@ record:S1_SS1_B1_033_34 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B1_034_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19310202 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_034_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_034_01 ;
@@ -4803,7 +4791,6 @@ record:S1_SS1_B1_035_02 a rico:Record ;
     gn:featureCode "ISL"^^xsd:string .
 
 record:S1_SS1_B1_036_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19120417 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_036_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_036_01 ;
@@ -4878,7 +4865,6 @@ record:S1_SS1_B1_040_01 a rico:Record ;
     rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B1_041_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19240923 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_041_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_041_01 ;
@@ -4945,7 +4931,6 @@ record:S1_SS1_B1_044_02 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B1_045_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19321221 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_045_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_045_01 ;
@@ -5313,7 +5298,6 @@ record:S1_SS1_B1_052_01 a rico:Record ;
     rico:physicalOrLogicalExtent "2"^^xsd:string .
 
 record:S1_SS1_B1_053_01 a rico:Record ;
-    rico:generalDescription "Scritta a macchina: segnalare?"^^xsd:string ;
     rico:hasCreationDate date:19291121 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_053_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_053_01 ;
@@ -5326,7 +5310,6 @@ record:S1_SS1_B1_053_01 a rico:Record ;
     gn:featureCode "PPLA3"^^xsd:string .
 
 record:S1_SS1_B1_054_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19290808 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B1_054_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B1_054_01 ;
@@ -5519,7 +5502,6 @@ record:S1_SS1_B2_003_08 a rico:Record ;
     rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B2_004_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19090114 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B2_004_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B2_004_01 ;
@@ -5597,7 +5579,6 @@ record:S1_SS1_B2_007_01 a rico:Record ;
     rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B2_008_01 a rico:Record ;
-    rico:generalDescription "Negli estremi cronologici del fascicolo compare anche l'ora (00:00:00) e la data è nel formato AAAA-MM-GG"^^xsd:string ;
     rico:hasCreationDate date:19110404 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B2_008_01 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B2_008_01 ;
@@ -6607,9 +6588,7 @@ record:S1_SS1_B3_002_01 a rico:Record ;
     rico:hasSender person:Chialchia_Antonella ;
     rico:isAssociatedWithPlace place:Trieste ;
     rico:isDirectlyIncludedIn recordset:S1_SS1_B3_002 ;
-    rico:physicalOrLogicalExtent "1"^^xsd:string ;
-    gn:featureClass "P"^^xsd:string ;
-    gn:featureCode "PPLA"^^xsd:string .
+    rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B3_003_01 a rico:Record ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B3_003_01 ;
@@ -6726,8 +6705,8 @@ record:S1_SS1_B3_005_05 a rico:Record ;
     rico:isAssociatedWithPlace place: ;
     rico:isDirectlyIncludedIn recordset:S1_SS1_B3_005 ;
     rico:physicalOrLogicalExtent "2"^^xsd:string ;
-    gn:featureClass "P"^^xsd:string ;
-    gn:featureCode "PPL"^^xsd:string .
+    gn:featureClass "H"^^xsd:string ;
+    gn:featureCode "LK"^^xsd:string .
 
 record:S1_SS1_B3_006_01 a rico:Record ;
     rico:hasCreationDate date:19200319 ;
@@ -10504,7 +10483,6 @@ record:S1_SS1_B5_013_100 a rico:Record ;
 
 record:S1_SS1_B5_013_101 a rico:Record ;
     rico:expressedDate "22 dicembre 1929"^^xsd:string ;
-    rico:generalDescription "Mancano immagini in DL, ma nel repository ci sono con denominazione corretta"^^xsd:string ;
     rico:hasCreationDate date:19291222 ;
     rico:hasOrHadIdentifier internalIdentifier:S1_SS1_B5_013_101 ;
     rico:hasOrHadInstantiation inst:S1_SS1_B5_013_101 ;
@@ -12621,9 +12599,7 @@ record:S1_SS1_B6_006_01 a rico:Record ;
     rico:hasSender person:Levacher_Italo ;
     rico:isAssociatedWithPlace place:Treviso ;
     rico:isDirectlyIncludedIn recordset:S1_SS1_B6_006 ;
-    rico:physicalOrLogicalExtent "1"^^xsd:string ;
-    gn:featureClass "P"^^xsd:string ;
-    gn:featureCode "PPLA2"^^xsd:string .
+    rico:physicalOrLogicalExtent "1"^^xsd:string .
 
 record:S1_SS1_B6_006_02 a rico:Record ;
     rico:hasCreationDate date:19220427 ;
@@ -20999,8 +20975,6 @@ recordset:S1_SS1_B10_036_07 rico:hasSender person:Mittenti_Ignoti .
 
 recordset:S1_SS1_B10_036_08 rico:hasSender person:Mittenti_Ignoti .
 
-recordset:S1_SS1_B10_036_09 rico:hasSender person:Mittenti_Ignoti .
-
 recordset:S1_SS1_B10_036_10 rico:hasSender person:Mittenti_Ignoti .
 
 recordset:S1_SS1_B10_036_11 rico:hasSender person:Mittenti_Ignoti .
@@ -25380,7 +25354,7 @@ date:19060205 a rico:Date ;
     rico:normalizedDateValue "1906-02-05"^^xsd:date .
 
 date:19060212 a rico:Date ;
-    rico:expressedDate "12 febbraio 1906"^^xsd:string ;
+    rico:expressedDate "1906-02-12 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1906-02-12"^^xsd:date .
 
 date:19060407 a rico:Date ;
@@ -25740,7 +25714,7 @@ date:19120225 a rico:Date ;
     rico:normalizedDateValue "1912-02-25"^^xsd:date .
 
 date:19120306 a rico:Date ;
-    rico:expressedDate "6 marzo 1912"^^xsd:string ;
+    rico:expressedDate "1912-03-06 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1912-03-06"^^xsd:date .
 
 date:19120323 a rico:Date ;
@@ -25836,7 +25810,7 @@ date:19130207 a rico:Date ;
     rico:normalizedDateValue "1913-02-07"^^xsd:date .
 
 date:19130301 a rico:Date ;
-    rico:expressedDate "1 marzo 1913"^^xsd:string ;
+    rico:expressedDate "1913-03-01 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1913-03-01"^^xsd:date .
 
 date:19130319 a rico:Date ;
@@ -25939,7 +25913,7 @@ date:19140108 a rico:Date ;
     rico:normalizedDateValue "1914-01-08"^^xsd:date .
 
 date:19140123 a rico:Date ;
-    rico:expressedDate "25 gennaio 1914"^^xsd:string ;
+    rico:expressedDate "1914-01-25 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1914-01-23"^^xsd:date .
 
 date:19140205 a rico:Date ;
@@ -25971,7 +25945,7 @@ date:19140311 a rico:Date ;
     rico:normalizedDateValue "1914-03-11"^^xsd:date .
 
 date:19140314 a rico:Date ;
-    rico:expressedDate "14 marzo 1914"^^xsd:string ;
+    rico:expressedDate "1914-03-14 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1914-03-14"^^xsd:date .
 
 date:19140401 a rico:Date ;
@@ -26285,7 +26259,7 @@ date:19190908 a rico:Date ;
     rico:normalizedDateValue "1919-09-08"^^xsd:date .
 
 date:19190929 a rico:Date ;
-    rico:expressedDate "29 settembre 1919"^^xsd:string ;
+    rico:expressedDate "1919-09-19 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1919-09-29"^^xsd:date .
 
 date:19191009 a rico:Date ;
@@ -26348,7 +26322,7 @@ date:19201022 a rico:Date ;
     rico:normalizedDateValue "1920-10-22"^^xsd:date .
 
 date:19201026 a rico:Date ;
-    rico:expressedDate "26 ottobre 1920"^^xsd:string ;
+    rico:expressedDate "1920-10-26 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1920-10-26"^^xsd:date .
 
 date:19201122 a rico:Date ;
@@ -26635,10 +26609,6 @@ date:19231101 a rico:Date ;
     rico:expressedDate "1 novembre 1923"^^xsd:string ;
     rico:normalizedDateValue "1923-11-01"^^xsd:date .
 
-date:19231120 a rico:Date ;
-    rico:expressedDate "20 novembre 1923"^^xsd:string ;
-    rico:normalizedDateValue "1923-11-20"^^xsd:date .
-
 date:19231203 a rico:Date ;
     rico:expressedDate "3 dicembre 1923"^^xsd:string ;
     rico:normalizedDateValue "1923-12-03"^^xsd:date .
@@ -26740,7 +26710,7 @@ date:19250312 a rico:Date ;
     rico:normalizedDateValue "1925-03-12"^^xsd:date .
 
 date:19250322 a rico:Date ;
-    rico:expressedDate "22 marzo 1925"^^xsd:string ;
+    rico:expressedDate "22 marzo 2025"^^xsd:string ;
     rico:normalizedDateValue "1925-03-22"^^xsd:date .
 
 date:19250329 a rico:Date ;
@@ -26800,7 +26770,7 @@ date:19251204 a rico:Date ;
     rico:normalizedDateValue "1925-12-04"^^xsd:date .
 
 date:19251228 a rico:Date ;
-    rico:expressedDate "28 dicembre 1925"^^xsd:string ;
+    rico:expressedDate "1925-12-28 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1925-12-28"^^xsd:date .
 
 date:1926 a rico:Date ;
@@ -27081,7 +27051,7 @@ date:19280116 a rico:Date ;
     rico:normalizedDateValue "1928-01-16"^^xsd:date .
 
 date:19280202 a rico:Date ;
-    rico:expressedDate "2 febbraio 1928"^^xsd:string ;
+    rico:expressedDate "1928-02-02 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1928-02-02"^^xsd:date .
 
 date:19280211 a rico:Date ;
@@ -27128,7 +27098,7 @@ date:19280504 a rico:Date ;
     rico:normalizedDateValue "1928-05-04"^^xsd:date .
 
 date:19280514 a rico:Date ;
-    rico:expressedDate "14 maggio 1928"^^xsd:string ;
+    rico:expressedDate "1928-05-14 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1928-05-14"^^xsd:date .
 
 date:19280515 a rico:Date ;
@@ -27270,7 +27240,7 @@ date:19290522 a rico:Date ;
     rico:normalizedDateValue "1929-05-22"^^xsd:date .
 
 date:19290525 a rico:Date ;
-    rico:expressedDate "25 maggio 1929"^^xsd:string ;
+    rico:expressedDate "1929-05-25 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1929-05-25"^^xsd:date .
 
 date:19290612 a rico:Date ;
@@ -27617,7 +27587,7 @@ date:19320813 a rico:Date ;
     rico:normalizedDateValue "1932-08-13"^^xsd:date .
 
 date:19320911 a rico:Date ;
-    rico:expressedDate "11 settembre 1932"^^xsd:string ;
+    rico:expressedDate "1932-09-11 00:00:00"^^xsd:string ;
     rico:normalizedDateValue "1932-09-11"^^xsd:date .
 
 date:19321026 a rico:Date ;
@@ -28229,9 +28199,6 @@ inst:S1_SS1_B10_036_07 a rico:Instantiation ;
 
 inst:S1_SS1_B10_036_08 a rico:Instantiation ;
     rico:isOrWasInstantiationOf record:S1_SS1_B10_036_08 .
-
-inst:S1_SS1_B10_036_09 a rico:Instantiation ;
-    rico:isOrWasInstantiationOf record:S1_SS1_B10_036_09 .
 
 inst:S1_SS1_B10_036_10 a rico:Instantiation ;
     rico:isOrWasInstantiationOf record:S1_SS1_B10_036_10 .
@@ -36167,10 +36134,6 @@ internalIdentifier:S1_SS1_B10_036_07 a rico:Identifier ;
 
 internalIdentifier:S1_SS1_B10_036_08 a rico:Identifier ;
     rdfs:label "S1_SS1_B10_036_08"^^xsd:string ;
-    rico:hasIdentifierType type:internalIdentifier .
-
-internalIdentifier:S1_SS1_B10_036_09 a rico:Identifier ;
-    rdfs:label "S1_SS1_B10_036_09"^^xsd:string ;
     rico:hasIdentifierType type:internalIdentifier .
 
 internalIdentifier:S1_SS1_B10_036_10 a rico:Identifier ;
@@ -44657,11 +44620,11 @@ internalIdentifier:S1_SS1_B9_054_03 a rico:Identifier ;
     rico:hasIdentifierType type:internalIdentifier .
 
 place: a rico:Place ;
-    gn:featureClass "P"^^xsd:string ;
-    gn:featureCode "PPL"^^xsd:string ;
-    owl:sameAs <http://sws.geonames.org/1762596/> ;
-    wgs84:lat 5.76667 ;
-    wgs84:long 102.41667 .
+    gn:featureClass "H"^^xsd:string ;
+    gn:featureCode "LK"^^xsd:string ;
+    owl:sameAs <http://sws.geonames.org/4218623/> ;
+    wgs84:lat 31.95157 ;
+    wgs84:long -83.26127 .
 
 place:Acireale a rico:Place ;
     gn:featureClass "P"^^xsd:string ;
@@ -45690,8 +45653,6 @@ title:Albini_10_35_Lettere_Mittenti_Ignoti_06 a rico:Title .
 title:Albini_10_35_Lettere_Mittenti_Ignoti_07 a rico:Title .
 
 title:Albini_10_35_Lettere_Mittenti_Ignoti_08 a rico:Title .
-
-title:Albini_10_35_Lettere_Mittenti_Ignoti_09 a rico:Title .
 
 title:Albini_10_35_Lettere_Mittenti_Ignoti_10 a rico:Title .
 
@@ -56656,9 +56617,9 @@ place:Chiomonte a rico:Place ;
 place:Corticella a rico:Place ;
     gn:featureClass "P"^^xsd:string ;
     gn:featureCode "PPL"^^xsd:string ;
-    owl:sameAs <http://sws.geonames.org/8957149/> ;
-    wgs84:lat 45.6123 ;
-    wgs84:long 8.30607 .
+    owl:sameAs <http://sws.geonames.org/8949997/> ;
+    wgs84:lat 44.63466 ;
+    wgs84:long 10.7519 .
 
 place:Faenza a rico:Place ;
     gn:featureClass "P"^^xsd:string ;
@@ -57981,8 +57942,8 @@ place:Rennes a rico:Place ;
     gn:featureClass "P"^^xsd:string ;
     gn:featureCode "PPLA"^^xsd:string ;
     owl:sameAs <http://sws.geonames.org/2983990/> ;
-    wgs84:lat 48.11198 ;
-    wgs84:long -1.67429 .
+    wgs84:lat 48.11109 ;
+    wgs84:long -1.67431 .
 
 place:Rovigo a rico:Place ;
     gn:featureClass "P"^^xsd:string ;
@@ -60514,6 +60475,13 @@ recordset:S1_SS1_B9_052 a rico:RecordSet ;
         "1931-03-29"^^xsd:date ;
     rico:physicalOrLogicalExtent "8 docc."^^xsd:string .
 
+place:Forlì a rico:Place ;
+    gn:featureClass "P"^^xsd:string ;
+    gn:featureCode "PPLA2"^^xsd:string ;
+    owl:sameAs <http://sws.geonames.org/3176746/> ;
+    wgs84:lat 44.22177 ;
+    wgs84:long 12.04144 .
+
 place:Fornovo_di_Taro a rico:Place ;
     gn:featureClass "P"^^xsd:string ;
     gn:featureCode "PPLA3"^^xsd:string ;
@@ -60657,13 +60625,6 @@ person:Tittoni_Tommaso a rico:Person ;
 
 person:Turazza_Eugenio a rico:Person ;
     rico:hasOrHadName "Turazza, Eugenio" .
-
-place:Forlì a rico:Place ;
-    gn:featureClass "P"^^xsd:string ;
-    gn:featureCode "PPLA2"^^xsd:string ;
-    owl:sameAs <http://sws.geonames.org/3176746/> ;
-    wgs84:lat 44.22177 ;
-    wgs84:long 12.04144 .
 
 place:Pavia a rico:Place ;
     gn:featureClass "P"^^xsd:string ;
@@ -62095,7 +62056,6 @@ recordset:S1_SS1_B10_036 a rico:RecordSet ;
         recordset:S1_SS1_B10_036_06,
         recordset:S1_SS1_B10_036_07,
         recordset:S1_SS1_B10_036_08,
-        recordset:S1_SS1_B10_036_09,
         recordset:S1_SS1_B10_036_10,
         recordset:S1_SS1_B10_036_11,
         recordset:S1_SS1_B10_036_12,
