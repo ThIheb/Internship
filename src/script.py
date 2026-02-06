@@ -138,6 +138,62 @@ def fetch_and_add_geonames_features(g, place_uri, geonames_id, place_label):
     if fclass: g.add((place_uri, NS_GN["featureClass"], Literal(fclass, datatype=XSD.string)))
     if fcode: g.add((place_uri, NS_GN["featureCode"], Literal(fcode, datatype=XSD.string)))
 
+def parse_notes_hierarchy(notes_str):
+    """
+    1. Checks for Range "Buste X-Y" first (Plural keyword + Dash). 
+       - Treats these as Boxes only (no fascicoli).
+    2. Checks for Single "Busta X" or "Buste X" (followed by optional fascicoli).
+       - Matches "Busta 12" or "Buste 12".
+       - Sweeps the remainder of the string for fascicoli numbers/ranges.
+    """
+    if not isinstance(notes_str, str): return {}
+    structure = {}
+    
+    text = notes_str.strip()
+    parts = re.split(r'[;]', text)
+    
+    for part in parts:
+        part = part.strip()
+        if not part: continue
+        
+        # 1. Strict Range Check: "Buste" + numbers with dash
+        #    e.g. "Buste 1-11"
+        range_match = re.match(r'buste\s*(\d+)\s*[-–—]\s*(\d+)', part, re.IGNORECASE)
+        if range_match:
+            start, end = int(range_match.group(1)), int(range_match.group(2))
+            for i in range(start, end + 1):
+                if i not in structure: structure[i] = [] 
+            continue 
+        
+        # 2. Single Check: "Busta X" OR "Buste X"
+        #    e.g. "Busta 12..." or "Buste 12..."
+        #    Matches the keyword and the box number
+        single_match = re.search(r'bust[ae]\s*(\d+)', part, re.IGNORECASE)
+        if single_match:
+            b_id = int(single_match.group(1))
+            if b_id not in structure: structure[b_id] = []
+            
+            # Remove the "Busta X" part to find fascicoli in the residue
+            residue = part[:single_match.start()] + " " + part[single_match.end():]
+            
+            # Scan residue for ranges (e.g. 37-42)
+            ranges = re.finditer(r'(\d+)\s*[-–—]\s*(\d+)', residue)
+            for r in ranges:
+                start, end = int(r.group(1)), int(r.group(2))
+                structure[b_id].extend(range(start, end + 1))
+                residue = residue.replace(r.group(0), " ")
+            
+            # Scan residue for singles (e.g. 3)
+            singles = re.findall(r'(\d+)', residue)
+            for s in singles:
+                val = int(s)
+                # Simple heuristic: ignore numbers that look like years (optional safety)
+                if val < 9999: 
+                    structure[b_id].append(val)
+                
+            structure[b_id] = sorted(list(set(structure[b_id])))
+
+    return structure
 
 g = Graph()
 prefixes = {"rdf": RDF, "rdfs": RDFS, "xsd": XSD, "owl": OWL}
@@ -335,7 +391,53 @@ for mapping_sheet in mapping_excel.sheet_names:
             if rdf_class and (subj_uri, RDF.type, rdf_class) not in g:
                 g.add((subj_uri, RDF.type, rdf_class))
 
-            
+            if mapping_sheet_lower == "sottoserie":
+                notes_val = inst_row.get('notes')
+                if pd.notna(notes_val):
+                    hierarchy = parse_notes_hierarchy(str(notes_val))
+                    
+                    for b_id, fasc_list in hierarchy.items():
+                        base_label = make_safe_uri_label(subj_val)
+                        busta_label = f"{base_label}_B{b_id}"
+                        busta_uri = prefixes["recordset"][busta_label]
+                        
+                        # Define Busta
+                        if (busta_uri, RDF.type, ns_rico["RecordSet"]) not in g:
+                            g.add((busta_uri, RDF.type, ns_rico["RecordSet"]))
+                            g.add((busta_uri, RDFS.label, Literal(f"Busta {b_id}", datatype=XSD.string)))
+                            g.add((busta_uri, ns_rico["identifier"], Literal(f"B{b_id}", datatype=XSD.string)))
+
+                        # LOGIC BRANCH:
+                        # If fasc_list is empty, link Sottoserie -> Busta (Range case)
+                        # If fasc_list exists, link Sottoserie -> Fascicoli (Content case)
+                        
+                        if not fasc_list:
+                            # Range Case: Buste 1-11
+                            g.add((subj_uri, ns_rico["directlyIncludes"], busta_uri))
+                            g.add((busta_uri, ns_rico["isDirectlyIncludedIn"], subj_uri))
+                        else:
+                            # Content Case: Busta 12, fasc 37-42
+                            # Link Busta -> Fascicoli
+                            for f_num in fasc_list:
+                                fasc_label = f"{busta_label}_{f_num:03d}" 
+                                fasc_uri = prefixes["recordset"][fasc_label]
+                                
+                                # Busta contains Fascicolo
+                                g.add((busta_uri, ns_rico["directlyIncludes"], fasc_uri))
+                                g.add((fasc_uri, ns_rico["isDirectlyIncludedIn"], busta_uri))
+                                
+                                # Sottoserie contains Fascicolo (Skipping Busta intermediate link for Sottoserie)
+                                g.add((subj_uri, ns_rico["directlyIncludes"], fasc_uri))
+                                g.add((fasc_uri, ns_rico["isDirectlyIncludedIn"], subj_uri))
+                                
+                                if (fasc_uri, RDF.type, ns_rico["RecordSet"]) not in g:
+                                    g.add((fasc_uri, RDF.type, ns_rico["RecordSet"]))
+                                    id_uri = ns_ident[fasc_label]
+                                    g.add((fasc_uri, ns_rico["hasOrHadIdentifier"], id_uri))
+                                    g.add((id_uri, ns_rico["isOrWasIdentifierOf"], fasc_uri))
+                                    g.add((id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
+                                    g.add((id_uri, RDFS.label, Literal(fasc_label, datatype=XSD.string)))
+
             if rdf_class == ns_rico["Record"]:
                 safe_id_label = make_safe_uri_label(subj_val)
                 id_uri = ns_ident[safe_id_label]
@@ -353,6 +455,9 @@ for mapping_sheet in mapping_excel.sheet_names:
             final_obj_term = None 
             final_pred = pred 
             handled_custom = False
+
+            if mapping_sheet_lower == "sottoserie" and obj_col.lower() == "notes" and final_pred in {ns_rico["directlyIncludes"], ns_rico["includes"]}:
+                continue
 
             if final_pred == TEMP_PROPAGATE_SENDER:
                 name_val = obj_val_str
