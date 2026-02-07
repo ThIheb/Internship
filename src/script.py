@@ -24,7 +24,7 @@ try:
 except ImportError:
     print("--- WARNING: geonamescache not installed. Falling back to API only. ---")
     gc = None
-
+#create safe labels for URI creation
 def make_safe_uri_label(value):
     if not isinstance(value, str):
         value = str(value)
@@ -34,6 +34,7 @@ def make_safe_uri_label(value):
     return clean
 
 def parse_normalized_dates(date_str):
+    #input check
     if not isinstance(date_str, str): return None, None
     date_str = date_str.strip()
     if re.match(r"^\d{8}-\d{8}$", date_str):
@@ -139,13 +140,6 @@ def fetch_and_add_geonames_features(g, place_uri, geonames_id, place_label):
     if fcode: g.add((place_uri, NS_GN["featureCode"], Literal(fcode, datatype=XSD.string)))
 
 def parse_notes_hierarchy(notes_str):
-    """
-    1. Checks for Range "Buste X-Y" first (Plural keyword + Dash). 
-       - Treats these as Boxes only (no fascicoli).
-    2. Checks for Single "Busta X" or "Buste X" (followed by optional fascicoli).
-       - Matches "Busta 12" or "Buste 12".
-       - Sweeps the remainder of the string for fascicoli numbers/ranges.
-    """
     if not isinstance(notes_str, str): return {}
     structure = {}
     
@@ -156,8 +150,6 @@ def parse_notes_hierarchy(notes_str):
         part = part.strip()
         if not part: continue
         
-        # 1. Strict Range Check: "Buste" + numbers with dash
-        #    e.g. "Buste 1-11"
         range_match = re.match(r'buste\s*(\d+)\s*[-–—]\s*(\d+)', part, re.IGNORECASE)
         if range_match:
             start, end = int(range_match.group(1)), int(range_match.group(2))
@@ -165,29 +157,22 @@ def parse_notes_hierarchy(notes_str):
                 if i not in structure: structure[i] = [] 
             continue 
         
-        # 2. Single Check: "Busta X" OR "Buste X"
-        #    e.g. "Busta 12..." or "Buste 12..."
-        #    Matches the keyword and the box number
         single_match = re.search(r'bust[ae]\s*(\d+)', part, re.IGNORECASE)
         if single_match:
             b_id = int(single_match.group(1))
             if b_id not in structure: structure[b_id] = []
             
-            # Remove the "Busta X" part to find fascicoli in the residue
             residue = part[:single_match.start()] + " " + part[single_match.end():]
             
-            # Scan residue for ranges (e.g. 37-42)
             ranges = re.finditer(r'(\d+)\s*[-–—]\s*(\d+)', residue)
             for r in ranges:
                 start, end = int(r.group(1)), int(r.group(2))
                 structure[b_id].extend(range(start, end + 1))
                 residue = residue.replace(r.group(0), " ")
             
-            # Scan residue for singles (e.g. 3)
             singles = re.findall(r'(\d+)', residue)
             for s in singles:
                 val = int(s)
-                # Simple heuristic: ignore numbers that look like years (optional safety)
                 if val < 9999: 
                     structure[b_id].append(val)
                 
@@ -401,32 +386,22 @@ for mapping_sheet in mapping_excel.sheet_names:
                         busta_label = f"{base_label}_B{b_id}"
                         busta_uri = prefixes["recordset"][busta_label]
                         
-                        # Define Busta
                         if (busta_uri, RDF.type, ns_rico["RecordSet"]) not in g:
                             g.add((busta_uri, RDF.type, ns_rico["RecordSet"]))
                             g.add((busta_uri, RDFS.label, Literal(f"Busta {b_id}", datatype=XSD.string)))
                             g.add((busta_uri, ns_rico["identifier"], Literal(f"B{b_id}", datatype=XSD.string)))
 
-                        # LOGIC BRANCH:
-                        # If fasc_list is empty, link Sottoserie -> Busta (Range case)
-                        # If fasc_list exists, link Sottoserie -> Fascicoli (Content case)
-                        
                         if not fasc_list:
-                            # Range Case: Buste 1-11
                             g.add((subj_uri, ns_rico["directlyIncludes"], busta_uri))
                             g.add((busta_uri, ns_rico["isDirectlyIncludedIn"], subj_uri))
                         else:
-                            # Content Case: Busta 12, fasc 37-42
-                            # Link Busta -> Fascicoli
                             for f_num in fasc_list:
                                 fasc_label = f"{busta_label}_{f_num:03d}" 
                                 fasc_uri = prefixes["recordset"][fasc_label]
                                 
-                                # Busta contains Fascicolo
                                 g.add((busta_uri, ns_rico["directlyIncludes"], fasc_uri))
                                 g.add((fasc_uri, ns_rico["isDirectlyIncludedIn"], busta_uri))
                                 
-                                # Sottoserie contains Fascicolo (Skipping Busta intermediate link for Sottoserie)
                                 g.add((subj_uri, ns_rico["directlyIncludes"], fasc_uri))
                                 g.add((fasc_uri, ns_rico["isDirectlyIncludedIn"], subj_uri))
                                 
@@ -464,15 +439,13 @@ for mapping_sheet in mapping_excel.sheet_names:
                 
                 entity_type = ns_rico["Person"]
                 entity_ns = prefixes["person"]
-                is_institution = False
-
+                
                 busta_check = re.search(r"_B(\d+)(?:_|$)", str(subj_val), re.IGNORECASE)
                 if busta_check:
                     b_num = int(busta_check.group(1))
                     if b_num >= 11:
                         entity_type = ns_rico["CorporateBody"]
                         entity_ns = prefixes["corporateBody"]
-                        is_institution = True
 
                 viaf_code = None
                 for c in inst_row.index:
@@ -499,6 +472,7 @@ for mapping_sheet in mapping_excel.sheet_names:
                         g.add((agent_uri, OWL.sameAs, external_link))
                 
                 g.add((subj_uri, TEMP_INTERMEDIATE_SENDER, agent_uri))
+                
                 handled_custom = True
             
             elif final_pred == TEMP_BOX_ID_PREDICATE:
@@ -636,12 +610,21 @@ for mapping_sheet in mapping_excel.sheet_names:
             if not handled_custom:
                 if final_pred in STRUCTURAL_URI_PREDICATES:
                     safe_obj_label = make_safe_uri_label(obj_val_str)
-                    target_ns = Namespace(BASE_NS)
-                    if mapping_sheet_lower == "documento": target_ns = prefixes["recordset"] 
-                    elif mapping_sheet_lower == "fascicolo":
-                        if final_pred in {ns_rico["includes"], ns_rico["directlyIncludes"]}: target_ns = prefixes["record"]
-                        else: target_ns = prefixes["recordset"]
-                    elif mapping_sheet_lower in ["serie", "sottoserie"]: target_ns = prefixes["recordset"]
+                    
+                    id_parts_count = len(safe_obj_label.split('_'))
+
+                    if final_pred in {ns_rico["includes"], ns_rico["directlyIncludes"]}:
+                        if id_parts_count > 4:
+                            target_ns = prefixes["record"]
+                        else:
+                            target_ns = prefixes["recordset"]
+                    
+                    elif final_pred in {ns_rico["isIncludedIn"], ns_rico["isDirectlyIncludedIn"]}:
+                        target_ns = prefixes["recordset"]
+                        
+                    else:
+                        target_ns = prefixes["recordset"]
+                    
                     final_obj_term = target_ns[safe_obj_label]
                 
                 elif final_pred == RICO_HAS_INSTANTIATION:
@@ -694,6 +677,9 @@ for mapping_sheet in mapping_excel.sheet_names:
                     continue
                 
                 g.add((subj_uri, final_pred, final_obj_term))
+                
+                if final_pred == ns_rico["hasSender"]:
+                    g.add((final_obj_term, ns_rico["isSenderOf"], subj_uri))
 
 
 print("\n🔹 Running Post-Processing: Propagating 'hasSender' from Fascicolo to Documents...")
@@ -701,13 +687,22 @@ print("\n🔹 Running Post-Processing: Propagating 'hasSender' from Fascicolo to
 triples_to_remove = []
 
 for parent, _, sender in g.triples((None, TEMP_INTERMEDIATE_SENDER, None)):
-    for _, _, child in g.triples((parent, ns_rico["includes"], None)): g.add((child, ns_rico["hasSender"], sender))
-    for _, _, child in g.triples((parent, ns_rico["directlyIncludes"], None)): g.add((child, ns_rico["hasSender"], sender))
-    for child, _, _ in g.triples((None, ns_rico["isIncludedIn"], parent)): g.add((child, ns_rico["hasSender"], sender))
-    for child, _, _ in g.triples((None, ns_rico["isDirectlyIncludedIn"], parent)): g.add((child, ns_rico["hasSender"], sender))
+    children = set()
+    
+    for _, _, child in g.triples((parent, ns_rico["includes"], None)): children.add(child)
+    for _, _, child in g.triples((parent, ns_rico["directlyIncludes"], None)): children.add(child)
+    for child, _, _ in g.triples((None, ns_rico["isIncludedIn"], parent)): children.add(child)
+    for child, _, _ in g.triples((None, ns_rico["isDirectlyIncludedIn"], parent)): children.add(child)
+
+    for child in children:
+        if (child, ns_rico["hasSender"], sender) not in g:
+            g.add((child, ns_rico["hasSender"], sender))
+            g.add((sender, ns_rico["isSenderOf"], child))
+
     triples_to_remove.append((parent, TEMP_INTERMEDIATE_SENDER, sender))
 
-for t in triples_to_remove: g.remove(t)
+for t in triples_to_remove:
+    g.remove(t)
 
 print(f"   -> Propagated senders to children and cleaned up temp links.")
 
