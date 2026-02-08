@@ -24,6 +24,7 @@ try:
 except ImportError:
     print("--- WARNING: geonamescache not installed. Falling back to API only. ---")
     gc = None
+
 #create safe labels for URI creation
 def make_safe_uri_label(value):
     if not isinstance(value, str):
@@ -424,6 +425,18 @@ for mapping_sheet in mapping_excel.sheet_names:
                     g.add((id_uri, RDFS.label, Literal(subj_val, datatype=XSD.string)))
                     g.add((id_uri, ns_rico["hasIdentifierType"], ns_type["internalIdentifier"]))
                     g.add((ns_type["internalIdentifier"], RDFS.label, Literal("InternalIdentifier", datatype=XSD.string)))
+
+            if rdf_class == ns_rico["RecordSet"]:
+                safe_id_label = make_safe_uri_label(subj_val)
+                id_uri = ns_ident[safe_id_label]
+                g.add((subj_uri, ns_rico["hasOrHadIdentifier"], id_uri))
+                g.add((id_uri, ns_rico["isOrWasIdentifierOf"], subj_uri))
+
+                if (id_uri, RDF.type, RICO_IDENTIFIER_CLASS) not in g:
+                    g.add((id_uri, RDF.type, RICO_IDENTIFIER_CLASS))
+                    g.add((id_uri, RDFS.label, Literal(subj_val, datatype=XSD.string)))
+                    g.add((id_uri, ns_rico["hasIdentifierType"], ns_type["internalIdentifier"]))
+                    g.add((ns_type["internalIdentifier"], RDFS.label, Literal("InternalIdentifier", datatype=XSD.string)))
             
 
             obj_val_str = str(obj_val).strip()
@@ -540,12 +553,6 @@ for mapping_sheet in mapping_excel.sheet_names:
                     geonames_id = find_geonames_id_by_label(str(entity_label))
                     if geonames_id:
                         fetch_and_add_geonames_features(g, physloc_uri, geonames_id, str(entity_label))
-                        
-                        if g.value(physloc_uri, NS_GN.featureClass):
-                             g.add((subj_uri, NS_GN.featureClass, g.value(physloc_uri, NS_GN.featureClass)))
-                        if g.value(physloc_uri, NS_GN.featureCode):
-                             g.add((subj_uri, NS_GN.featureCode, g.value(physloc_uri, NS_GN.featureCode)))
-
                     final_obj_term = place_uri
                     handled_custom = True
 
