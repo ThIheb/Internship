@@ -12,7 +12,7 @@ PROJECT_ROOT = os.path.dirname(BASE_DIR)
 mapping_path = os.path.join(PROJECT_ROOT, "data", "input", "mapping1.xlsx")
 instances_path = os.path.join(PROJECT_ROOT, "data", "input", "instances.xlsx")
 output_path = os.path.join(PROJECT_ROOT, "data", "output", "output2.ttl")
-BASE_NS = "http://www.w3.org/ns/DigitalAlbini#"
+BASE_NS = "http://www.w3id.org/DigitalAlbini/"
 
 GEONAMES_USERNAME = "th_iheb" 
 
@@ -189,51 +189,51 @@ prefixes["rico"] = Namespace("https://www.ica.org/standards/RiC/ontology#")
 g.bind("rico", prefixes["rico"])
 ns_rico = prefixes["rico"]
 
-prefixes["temp"] = Namespace(f"{BASE_NS}temp/")
+prefixes["temp"] = Namespace(f"{BASE_NS}temp#")
 g.bind("temp", prefixes["temp"])
 
-prefixes["storageid"] = Namespace(f"{BASE_NS}storageid/")
+prefixes["storageid"] = Namespace(f"{BASE_NS}storageid#")
 g.bind("storageid", prefixes["storageid"])
 ns_storageid = prefixes["storageid"]
 
-prefixes["type"] = Namespace(f"{BASE_NS}type/")
+prefixes["type"] = Namespace(f"{BASE_NS}type#")
 g.bind("type", prefixes["type"])
 ns_type = prefixes["type"]
 
-prefixes["corporateBody"] = Namespace(f"{BASE_NS}corporateBody/")
+prefixes["corporateBody"] = Namespace(f"{BASE_NS}CorporateBody#")
 g.bind("corporateBody", prefixes["corporateBody"])
 
-prefixes["record"] = Namespace(f"{BASE_NS}Record/")
+prefixes["record"] = Namespace(f"{BASE_NS}Record#")
 g.bind("record", prefixes["record"])
 
-prefixes["recordset"] = Namespace(f"{BASE_NS}RecordSet/")
+prefixes["recordset"] = Namespace(f"{BASE_NS}RecordSet#")
 g.bind("recordset", prefixes["recordset"])
 
-prefixes["place"] = Namespace(f"{BASE_NS}place/")
+prefixes["place"] = Namespace(f"{BASE_NS}Place#")
 g.bind("place", prefixes["place"]) 
 
-prefixes["physloc"] = Namespace(f"{BASE_NS}physloc/")
+prefixes["physloc"] = Namespace(f"{BASE_NS}physloc#")
 g.bind("physloc", prefixes["physloc"])
 
-prefixes["date"] = Namespace(f"{BASE_NS}date/")
+prefixes["date"] = Namespace(f"{BASE_NS}Date#")
 g.bind("date", prefixes["date"])
 
-prefixes["internalIdentifier"] = Namespace(f"{BASE_NS}internalIdentifier/")
+prefixes["internalIdentifier"] = Namespace(f"{BASE_NS}internalIdentifier#")
 g.bind("internalIdentifier", prefixes["internalIdentifier"]) 
 ns_ident = prefixes["internalIdentifier"]
 prefixes["identifier"] = prefixes["internalIdentifier"] 
 
-prefixes["title"] = Namespace(f"{BASE_NS}title/")
+prefixes["title"] = Namespace(f"{BASE_NS}Title#")
 g.bind("title", prefixes["title"]) 
 ns_title = prefixes["title"]
 
-prefixes["inst"] = Namespace(f"{BASE_NS}inst/")
+prefixes["inst"] = Namespace(f"{BASE_NS}inst#")
 g.bind("inst", prefixes["inst"]) 
 ns_inst = prefixes["inst"]
 
-prefixes["person"] = Namespace(f"{BASE_NS}person/")
+prefixes["person"] = Namespace(f"{BASE_NS}Person#")
 g.bind("person", prefixes["person"]) 
-prefixes["agent"] = Namespace(f"{BASE_NS}agent/")
+prefixes["agent"] = Namespace(f"{BASE_NS}Agent#")
 g.bind("agent", prefixes["agent"]) 
 
 NS_GN = Namespace("http://www.geonames.org/ontology#")
@@ -245,7 +245,7 @@ def get_namespace(term):
     if ":" in term and not term.startswith("http"):
         prefix, _ = term.split(":", 1)
         if prefix not in prefixes:
-            prefixes[prefix] = Namespace(f"{BASE_NS}{prefix}/")
+            prefixes[prefix] = Namespace(f"{BASE_NS}{prefix}#")
             g.bind(prefix, prefixes[prefix])
         return prefixes[prefix]
     return None
@@ -589,7 +589,7 @@ for mapping_sheet in mapping_excel.sheet_names:
                                 if pd.notna(expressed_date_val):
                                     val_str = str(expressed_date_val).strip()
                                     g.add((entity_uri, RICO_EXPRESSED_DATE, Literal(val_str, datatype=XSD.string)))
-                                    g.add((subj_uri, RICO_EXPRESSED_DATE, Literal(val_str, datatype=XSD.string)))
+                                    
 
                     if entity_type_uri == ns_rico["Date"]:
                         if final_pred == RICO_HAS_BEGIN_DATE:
