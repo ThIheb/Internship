@@ -376,6 +376,18 @@ for mapping_sheet in mapping_excel.sheet_names:
             subj_uri = current_prefix[make_safe_uri_label(subj_val)]
             if rdf_class and (subj_uri, RDF.type, rdf_class) not in g:
                 g.add((subj_uri, RDF.type, rdf_class))
+                
+            if rdf_class and "_" in str(subj_val):
+                parent_id = str(subj_val).rsplit("_", 1)[0]
+                parent_parts = len(parent_id.split("_"))
+                
+                
+                parent_prefix = prefixes["recordset"] if parent_parts <= 4 else prefixes["record"]
+                parent_uri = parent_prefix[make_safe_uri_label(parent_id)]
+                
+               
+                g.add((subj_uri, ns_rico["isDirectlyIncludedIn"], parent_uri))
+                g.add((parent_uri, ns_rico["directlyIncludes"], subj_uri))
 
             if mapping_sheet_lower == "sottoserie":
                 notes_val = inst_row.get('notes')
@@ -583,8 +595,8 @@ for mapping_sheet in mapping_excel.sheet_names:
                             value, datatype = format_date_for_xsd(entity_label)
                             if value:
                                 g.add((entity_uri, RICO_NORMALIZED_DATE, Literal(value, datatype=datatype)))
-                                g.add((subj_uri, RICO_NORMALIZED_DATE, Literal(value, datatype=datatype)))
-                            if mapping_sheet_lower == "documento":
+                                
+                            if mapping_sheet_lower == ["documento", "fascicolo", "fascicoli"]:
                                 expressed_date_val = inst_row.get("data") 
                                 if pd.notna(expressed_date_val):
                                     val_str = str(expressed_date_val).strip()
